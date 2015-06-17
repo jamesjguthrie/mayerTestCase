@@ -222,7 +222,10 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::volTranslation(const scalar V
 
     scalar c1 = 0.4266 * Zc_ - 0.01101;
 
-    return (-deltaC*(0.35/(0.35+d)) + ((this->R()*Tc_)/Pc_) * (c1 - exp(-2 * d) * (c1 + 0.004)));
+    scalar vs = (-deltaC*(0.35/(0.35+d)) + ((this->R()*Tc_)/Pc_) * (c1 - exp(-2 * d) * (c1 + 0.004)));
+
+    return vs;
+
 }
 
 
@@ -244,6 +247,7 @@ template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::dpdv(const scalar rho, const scalar T) const
 {
     scalar Vm = this->W()/rho;
+
     scalar dpdv = (
               2*a(T)*
               (
@@ -407,21 +411,28 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho
 
 //   scalar Vt = volTranslation(molarVolume,T) + molarVolume;
 
-   Info << rho0/ (this->W() / molarVolume) << " " << ZSave << endl;
+//   Info << rho0/ (this->W() / molarVolume) << " " << ZSave << endl;
 
-   return (1 / ZSave) * (this->W() / molarVolume);
+    molarVolume = volTranslation(molarVolume, T) + molarVolume;
+
+    scalar finalRho = (1 / ZSave) * (this->W() / molarVolume);
+
+    return finalRho;
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho(const scalar p, const scalar T) const
 {
     //Info << this->R() << " " << this->RR << endl;
+
     scalar rhoStart = p / (ZSave * this->R() * T);
-    scalar Vut = this->W() / rhoStart;
-    scalar Vt = volTranslation(Vut, T) + Vut;
-    rhoStart = this->W() / Vt;
-//    Info << rhoStart << endl;
     return this->rho(p, T, rhoStart);
+
+/*    scalar Vut = this->W() / rhoStart;
+    scalar Vt = this->volTranslation(Vut, T) + Vut;
+    rhoStart = this->W() / Vt;*/
+
+//    Info << "rhoStart: " << rhoStart << endl;
 }
 
 template<class Specie>
@@ -467,13 +478,11 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::psi
 ) const
 {
     ZSave = Z(p, T);
-/*    scalar rho = p/(ZSave * this->R()*T);
-    Info << "This is psi" << endl;
-    scalar Vut = this->W()/rho;
-    scalar Vt = volTranslation(Vut, T) + Vut;
+    scalar rho = this->rho(p,T); //p/(ZSave * this->R()*T);
+/*    scalar Vut = this->W()/rho;
+    scalar Vt = this->volTranslation(Vut, T) + Vut;
     rho = this->W() / Vt;*/
 
-    scalar rho = p/(ZSave * this->R() * T); //this->rho(p,T);
     scalar beta=this->isobarExpCoef(rho, T);
 
     scalar psiNew =  
