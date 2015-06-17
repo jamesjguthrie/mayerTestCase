@@ -46,6 +46,9 @@ Foam::PengRobinsonGas<Specie>::PengRobinsonGas(Istream& is)
     n_(0.37464+1.54226*omega_-0.26992*pow(omega_,2)),
     TSave(0.0),
     ZSave(0.0),
+    aSave(0.0),
+    daSave(0.0),
+    d2aSave(0.0),
     counter(0.0)
 {
     CpCoeffs_ *= this->W();

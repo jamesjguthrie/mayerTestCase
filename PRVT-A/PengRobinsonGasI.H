@@ -51,7 +51,10 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     CpCoeffs_(CpCoeffs),
     omega_(omega),
     TSave(0),
-    ZSave(0)
+    ZSave(0),
+    aSave(0),
+    daSave(0),
+    d2aSave(0)
 {}
 
 
@@ -77,7 +80,10 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     n_(pg.n_),
     //rhostd_(pg.rhostd_),
     TSave(0),
-    ZSave(0)
+    ZSave(0),
+    aSave(0),
+    daSave(0),
+    d2aSave(0)
 {}
 
 
@@ -424,7 +430,7 @@ template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho(const scalar p, const scalar T) const
 {
     //Info << this->R() << " " << this->RR << endl;
-
+    ZSave = Z(p,T);
     scalar rhoStart = p / (ZSave * this->R() * T);
     return this->rho(p, T, rhoStart);
 
