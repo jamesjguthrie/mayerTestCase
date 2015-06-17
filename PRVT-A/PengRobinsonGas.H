@@ -49,6 +49,8 @@ namespace Foam
 
 template<class Specie> class PengRobinsonGas;
 
+template<class Thermo, template<class> class Type> class thermo;
+
 template<class Specie>
 inline PengRobinsonGas<Specie> operator+
 (
@@ -109,6 +111,9 @@ class PengRobinsonGas
         //- Critical Pressure [Pa]
         scalar Pc_;
 
+	//Cp calculated
+	mutable scalar CpEoS_;
+
         //- Specific heat at constant pressure polynomial coeffs [J/(kg.K)]
         Polynomial<8> CpCoeffs_;
 
@@ -120,6 +125,7 @@ class PengRobinsonGas
     scalar a0_;
     mutable scalar b_;
 
+    mutable scalar counter;
 
     //CL: Variables to save the values of a, dadT and d2adT2 of the mixture
     //CL: Variables must corrected for changing temperatures
@@ -152,6 +158,7 @@ public:
             const scalar& Vc,
             const scalar& Zc,
             const scalar& Pc,
+	    const scalar& CpEoS,
 	    const Polynomial<8>& CpCoeffs,
 	    const scalar& omega
         );

@@ -38,13 +38,15 @@ Foam::PengRobinsonGas<Specie>::PengRobinsonGas(Istream& is)
     Vc_(readScalar(is)),
     Zc_(readScalar(is)),
     Pc_(readScalar(is)),
+    CpEoS_(0.0),
     CpCoeffs_("CpCoeffs<8>", is),
     omega_(readScalar(is)),
     a0_(0.457235*pow(this->RR,2)*pow(Tc_,2)/Pc_),
     b_(0.077796*this->RR*Tc_/Pc_), 
     n_(0.37464+1.54226*omega_-0.26992*pow(omega_,2)),
     TSave(0.0),
-    ZSave(0.0)
+    ZSave(0.0),
+    counter(0.0)
 {
     CpCoeffs_ *= this->W();
     is.check("PengRobinsonGas<Specie>::PengRobinsonGas(Istream& is)");
@@ -115,6 +117,7 @@ Foam::Ostream& Foam::operator<<
         << token::SPACE << pg.Zc_
         << token::SPACE << pg.Pc_
         << token::SPACE << pg.omega_
+	<< token::SPACE << pg.CpEoS_
 	<< token::SPACE << cpCoeffsOverW;
 
     os.check

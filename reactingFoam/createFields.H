@@ -43,7 +43,7 @@ volScalarField Cp
 (
     IOobject
     (
-        "Cp",
+        "thermo:Cp",
         runTime.timeName(),
         mesh,
         IOobject::NO_READ,
@@ -52,7 +52,7 @@ volScalarField Cp
     thermo.Cp()
 );
 
-Cp.write();
+//Cp.write();
 
 
 Info<< "Reading field U\n" << endl;

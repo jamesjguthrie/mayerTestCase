@@ -60,6 +60,19 @@ volScalarField& p = thermo.p();
 const volScalarField& psi = thermo.psi();
 const volScalarField& T = thermo.T();
 
+volScalarField psiByDp
+(
+    IOobject
+    (
+        "psiByDp",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    (psi * p)
+);
+
 
 #include "compressibleCreatePhi.H"
 

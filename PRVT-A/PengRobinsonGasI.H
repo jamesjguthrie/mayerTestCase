@@ -25,6 +25,7 @@ License
 
 #include "PengRobinsonGas.H"
 #include "mathematicalConstants.H"
+#include "thermo.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
@@ -36,6 +37,7 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     const scalar& Vc,
     const scalar& Zc,
     const scalar& Pc,
+    const scalar& CpEoS,
     const Polynomial<8>& CpCoeffs,
     const scalar& omega
 )
@@ -45,6 +47,7 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     Vc_(Vc),
     Zc_(Zc),
     Pc_(Pc),
+    CpEoS_(CpEoS),
     CpCoeffs_(CpCoeffs),
     omega_(omega),
     TSave(0),
@@ -66,6 +69,7 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     Pc_(pg.Pc_),
     Vc_(pg.Vc_),
     Zc_(pg.Zc_),
+    CpEoS_(pg.CpEoS_),
     CpCoeffs_(pg.CpCoeffs_),
     omega_(pg.omega_),
     a0_(pg.a0_),
@@ -222,7 +226,8 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::volTranslation(const scalar V
 }
 
 
-//returns the pressure for a given density and temperature    
+//returns the pressure for a given density and temperature
+
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::p(const scalar rho, const scalar T) const
 {
@@ -239,8 +244,7 @@ template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::dpdv(const scalar rho, const scalar T) const
 {
     scalar Vm = this->W()/rho;
-    Vm = Vm; // + volTranslation(Vm, T);
-    return(
+    scalar dpdv = (
               2*a(T)*
               (
                   pow(b(),3)-pow(b(),2)*Vm-b()*pow(Vm,2)+pow(Vm,3)
@@ -252,6 +256,9 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::dpdv(const scalar rho, const 
               )
           )
           /(pow(b()-Vm,2)*pow(pow(b(),2)-2*b()*Vm-pow(Vm,2),2));
+
+//    Info << "dpdv = " << dpdv << endl;
+    return dpdv;
 }
 
 //Real deviative dp/dT at constant molar volume 
@@ -260,8 +267,7 @@ template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::dpdT(const scalar rho, const scalar T) const
 { 
     scalar Vut = this->W()/rho;
-    scalar Vt = Vut; // + volTranslation(Vut, T);
-    return this->RR/(Vt-b())-dadT(T)/(pow(Vt,2)+2*b()*Vt-pow(b(),2));
+    return this->RR/(Vut-b())-dadT(T)/(pow(Vut,2)+2*b()*Vut-pow(b(),2));
 }
 
 
@@ -279,7 +285,9 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::dvdT(const scalar rho,const s
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::dvdp(const scalar rho,const scalar T)  const
 {
-    return 1/this->dpdv(rho, T);
+    scalar dvdp = 1/this->dpdv(rho, T);
+    Info << "dvdp = " << dvdp << endl;
+    return dvdp;
 }
 
 template<class Specie>
@@ -397,16 +405,23 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho
    }
    while(mag(molarVolumePrevIteration-molarVolume) > tol_*(this->W()/rho0));
 
-   scalar Vt = volTranslation(molarVolume,T) + molarVolume;
+//   scalar Vt = volTranslation(molarVolume,T) + molarVolume;
 
-   return this->W() / Vt;
+   Info << rho0/ (this->W() / molarVolume) << " " << ZSave << endl;
+
+   return (1 / ZSave) * (this->W() / molarVolume);
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho(const scalar p, const scalar T) const
 {
-    //Info << this->R() << " " << this->RR << endl; 
-    return p/(ZSave * this->R()*T);
+    //Info << this->R() << " " << this->RR << endl;
+    scalar rhoStart = p / (ZSave * this->R() * T);
+    scalar Vut = this->W() / rhoStart;
+    scalar Vt = volTranslation(Vut, T) + Vut;
+    rhoStart = this->W() / Vt;
+//    Info << rhoStart << endl;
+    return this->rho(p, T, rhoStart);
 }
 
 template<class Specie>
@@ -452,7 +467,13 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::psi
 ) const
 {
     ZSave = Z(p, T);
-    scalar rho = p/(ZSave * this->R()*T);
+/*    scalar rho = p/(ZSave * this->R()*T);
+    Info << "This is psi" << endl;
+    scalar Vut = this->W()/rho;
+    scalar Vt = volTranslation(Vut, T) + Vut;
+    rho = this->W() / Vt;*/
+
+    scalar rho = p/(ZSave * this->R() * T); //this->rho(p,T);
     scalar beta=this->isobarExpCoef(rho, T);
 
     scalar psiNew =  
@@ -676,6 +697,7 @@ Foam::PengRobinsonGas<Specie> Foam::operator*
         pg.Vc_,
         pg.Zc_,
         pg.Pc_,
+	pg.CpEoS_,
 	pg.CpCoeffs_,
         pg.omega_
     );
