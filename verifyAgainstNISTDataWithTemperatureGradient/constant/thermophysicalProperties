@@ -20,7 +20,7 @@ thermoType
     type            heRhoThermo;
     mixture         reactingMixture;
     transport       polynomial;
-    thermo          hPolynomial;
+    thermo          CpFromEoS;
     energy          sensibleEnthalpy;
     equationOfState PengRobinsonGas;
     specie          specie;

@@ -94,7 +94,7 @@ functions
         (
 	//Big Cp is in J/kg.K
 	//Wee cp is in J/kmol.K
-            rho T thermo:Cp psiByDp
+            rho T cp psiByDp
         );
 
         // Locations to be probed. runTime modifiable!

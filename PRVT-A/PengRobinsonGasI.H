@@ -191,13 +191,13 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::d2adT2(const scalar T)const
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::a0()const
 {
-    return 0.457235*pow(this->R(),2)*pow(Tc_,2)/Pc_;
+    return 0.457235*pow(this->RR,2)*pow(Tc_,2)/Pc_;
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::b()const
 {
-    return 0.077796*this->R()*Tc_/Pc_;
+    return 0.077796*this->RR*Tc_/Pc_;
 }
 
 template<class Specie>
@@ -419,9 +419,9 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho
 
 //   Info << rho0/ (this->W() / molarVolume) << " " << ZSave << endl;
 
-    molarVolume = volTranslation(molarVolume, T) + molarVolume;
+//    molarVolume = volTranslation(molarVolume, T) + molarVolume;
 
-    scalar finalRho = (1 / ZSave) * (this->W() / molarVolume);
+    scalar finalRho = this->W() / molarVolume; //(1 / ZSave) * (this->W() / molarVolume);
 
     return finalRho;
 }
@@ -430,8 +430,12 @@ template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho(const scalar p, const scalar T) const
 {
     //Info << this->R() << " " << this->RR << endl;
-    ZSave = Z(p,T);
-    scalar rhoStart = p / (ZSave * this->R() * T);
+    scalar Vut = this->W()/(p/(ZSave*this->R()*T));
+
+    scalar Vt = this->volTranslation(Vut, T) + Vut; 
+
+    scalar rhoStart = this->W() / Vt;
+
     return this->rho(p, T, rhoStart);
 
 /*    scalar Vut = this->W() / rhoStart;
@@ -440,6 +444,15 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho(const scalar p, const sca
 
 //    Info << "rhoStart: " << rhoStart << endl;
 }
+
+template<class Specie>
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::integral_d2pdT2_dv(const scalar rho,const scalar T) const
+{
+    scalar Vm = this->W()/rho;
+
+    return pow(2,0.5)*d2adT2(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b())-pow(2,0.5)*d2adT2(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b());
+}
+
 
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::isobarExpCoef(const scalar rho,const scalar T) const
@@ -456,22 +469,29 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::isothermalCompressiblity(cons
 }
 
 template<class Specie>
-inline Foam::scalar Foam::PengRobinsonGas<Specie>::CvCalc(const scalar p, const scalar T, const scalar Vt) const
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::cv0(const scalar T) const
 {
-    scalar Cv = 33.013 - (T * (1 / (this->b() * 2.8284)) * d2adT2(T) * log((2 * Vt + 2 * this->b() - this->b() * 2.8284) / (2 * Vt + 2 * this->b() + this->b() * 2.8284)));
-    //Info << Cv << endl;
+    scalar cp = CpCoeffs_.value(T); // /this->W();
+    return cp - this->RR;    
+}
 
-    return Cv;
+
+
+template<class Specie>
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::CvCalc(const scalar p, const scalar T, const scalar rho) const
+{
+    //scalar Vt = this->W() / rho;
+    //return 33.013 - (T * (1 / (this->b() * 2.8284)) * d2adT2(T) * log((2 * Vt + 2 * this->b() - this->b() * 2.8284) / (2 * Vt + 2 * this->b() + this->b() * 2.8284)));
+    return this->cv0(T)+T*this->integral_d2pdT2_dv(rho, T);
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::CpCalc(const scalar p, const scalar T, const scalar rho) const
 {
     scalar Vt = this->W()/rho;
-    scalar Cv = CvCalc(p, T, Vt);
-    scalar Cp = Cv - (T * sqr(dpdT(rho, T)) / dpdv(rho, T));
-//    Info << "Cv: " << Cv << " Cp: "<< Cp << endl;
-    //Info << "dpdv rho T: " << dpdv(rho, T) << " dpdv p T: " << dpdv(p, T) << " Divided: " << dpdv(rho, T) / dpdv(p, T) << endl;
+    scalar Cv = CvCalc(p, T, rho);
+    scalar Cp = Cv - (T * sqr(dpdT(rho, T))) / min(dpdv(rho, T),-1);
+  //  Info << "Cp: " << Cp << ", Cv: " << Cv << ", T: "<< T << endl;
     return Cp;
 }
 
@@ -497,7 +517,12 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::psi
         -this->isothermalCompressiblity(rho,T)*rho
     );
 
-    return psiNew / ZSave;
+//    return psiNew / ZSave;
+ //   scalar psiPerfect = 1/(ZSave * this->R() * T);
+
+//    Info << "psiNew: " << psiNew << ", psiPerfect: " << psiPerfect << endl;
+
+    return psiNew;
 }
 
 template<class Specie>

@@ -245,13 +245,17 @@ public:
 
 	    inline scalar CpOverW(const PengRobinsonGas<Specie> pg) const;
 
+	    inline scalar integral_d2pdT2_dv(const scalar rho,const scalar T) const;
+
 	    inline scalar isobarExpCoef(const scalar rho,const scalar T)const;
 
 	    inline scalar isothermalCompressiblity(const scalar rho,const scalar T) const;
 
+	    inline scalar cv0(const scalar T) const;
+
 	    inline scalar CpCalc(const scalar p, const scalar T, const scalar rho)const;
 
-	    inline scalar CvCalc(const scalar p, const scalar T, const scalar Vt)const;
+	    inline scalar CvCalc(const scalar p, const scalar T, const scalar rho)const;
 
             //CL: Equation of state
             inline scalar p(const scalar rho, const scalar T) const;
