@@ -168,9 +168,14 @@ public:
 
 
         // Fundamental properties
-
-            //- Heat capacity at constant pressure [J/(kmol K)]
+        
+	    //- perfect Gas internal Energy  [J/kmol]
+            inline scalar e0(const scalar T) const;
+        
+	    //- Heat capacity at constant pressure [J/(kmol K)]
             inline scalar cp(const scalar p, const scalar T) const;
+
+	    inline scalar cv(const scalar rho, const scalar T) const;
 
             //- Absolute Enthalpy [J/kmol]
             inline scalar ha(const scalar p, const scalar T) const;
@@ -183,7 +188,9 @@ public:
 
             //- Entropy [J/(kmol K)]
             inline scalar s(const scalar p, const scalar T) const;
-
+	    
+            //- Internal Energy [J/kmol]
+            inline scalar e(const scalar rho, const scalar T) const;
 
         // I-O
 

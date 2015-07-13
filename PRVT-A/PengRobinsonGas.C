@@ -45,6 +45,7 @@ Foam::PengRobinsonGas<Specie>::PengRobinsonGas(Istream& is)
     b_(0.077796*this->RR*Tc_/Pc_), 
     n_(0.37464+1.54226*omega_-0.26992*pow(omega_,2)),
     TSave(0.0),
+    rhostd_(this->rho(this->Pstd,this->Tstd,this->Pstd/(this->Tstd*this->R()))),
     ZSave(0.0),
     aSave(0.0),
     daSave(0.0),
@@ -76,7 +77,6 @@ Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     ),
     omega_(readScalar(dict.subDict("equationOfState").lookup("omega")))
     {
-//	Zc_ = Pc_*Vc_/(specie::RR*Tc_);
 	CpCoeffs_ *= this->W();
     }
 

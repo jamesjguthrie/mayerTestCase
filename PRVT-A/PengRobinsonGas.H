@@ -140,7 +140,7 @@ class PengRobinsonGas
     mutable scalar ZSave;
 
     //- Density @STD, initialise after a0, b!
-    //mutable scalar rhostd_;
+    mutable scalar rhostd_;
 
     //Protected functions
     //CL: function updates the coefficients (aSave, daSave, d2aSave)
@@ -226,7 +226,7 @@ public:
             //- Return (cp - cv) [J/(kmol K]
             inline scalar cpMcv(scalar p, scalar T) const;
 
-	    //inline scalar rhostd()const;
+	    inline scalar rhostd()const;
 
             //CL: Model coefficient a(T)
 	    inline scalar a(const  scalar T)const;
@@ -253,9 +253,9 @@ public:
 
 	    inline scalar cv0(const scalar T) const;
 
-	    inline scalar CpCalc(const scalar p, const scalar T, const scalar rho)const;
+	    inline scalar CpCalc(const scalar rho, const scalar T)const;
 
-	    inline scalar CvCalc(const scalar p, const scalar T, const scalar rho)const;
+	    inline scalar CvCalc(const scalar rho, const scalar T)const;
 
             //CL: Equation of state
             inline scalar p(const scalar rho, const scalar T) const;
@@ -278,9 +278,11 @@ public:
 	
             inline scalar d2vdT2(const scalar rho,const  scalar T) const;  
 	
-//	    inline scalar rhoMin_();
+	    inline scalar integral_p_dv(const scalar rho,const  scalar T) const;
+        
+        //CL: Used for Entropy
+            inline scalar integral_dpdT_dv(const scalar rho,const  scalar T) const;
 
-//	    inline scalar rhoMax_();
     // IO
 
             //- Write to Ostream

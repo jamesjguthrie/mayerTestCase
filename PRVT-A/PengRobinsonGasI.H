@@ -78,7 +78,7 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     a0_(pg.a0_),
     b_(pg.b_),
     n_(pg.n_),
-    //rhostd_(pg.rhostd_),
+    rhostd_(pg.rhostd_),
     TSave(0),
     ZSave(0),
     aSave(0),
@@ -134,6 +134,12 @@ inline void Foam::PengRobinsonGas<Specie>::updateModelCoefficients(const scalar 
 
     //CL: saving the temperature at which the coefficients are valid
     TSave=T;
+}
+
+template<class Specie>
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::rhostd() const
+{
+    return this->rho(this->Pstd,this->Tstd,this->Pstd/(this->Tstd*this->R()));
 }
 
 //CL: Model coefficient a(T)
@@ -301,16 +307,21 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::dvdp(const scalar rho,const s
 }
 
 template<class Specie>
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::integral_p_dv(const scalar rho, const scalar T) const
+{
+    scalar Vm = this->W()/rho;
+
+    return -pow(2,0.5)*a(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b())+this->RR*T*log(Vm-this->b())+pow(2,0.5)*a(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b());
+}
+
+template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::Cp
 (
     const scalar Rho,
     const scalar T
 ) const
 {
-    //scalar Vut = this->W()/Rho;
-//Vut = Vut + volTranslation(Vut, T);
-    //return this->CpCalc(3970000, T, Vut);
-return CpCoeffs_.value(T)/this->W();
+    return CpCoeffs_.value(T)/this->W();
 }
 
 template<class Specie>
@@ -429,13 +440,12 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::rho(const scalar p, const scalar T) const
 {
-    //Info << this->R() << " " << this->RR << endl;
     scalar Vut = this->W()/(p/(ZSave*this->R()*T));
 
     scalar Vt = this->volTranslation(Vut, T) + Vut; 
 
     scalar rhoStart = this->W() / Vt;
-
+    
     return this->rho(p, T, rhoStart);
 
 /*    scalar Vut = this->W() / rhoStart;
@@ -453,6 +463,13 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::integral_d2pdT2_dv(const scal
     return pow(2,0.5)*d2adT2(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b())-pow(2,0.5)*d2adT2(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b());
 }
 
+template<class Specie>
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::integral_dpdT_dv(const scalar rho, const scalar T) const
+{
+    scalar Vm = this->W()/rho;
+
+    return -pow(2,0.5)*dadT(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b())+this->RR*log(Vm-this->b())+pow(2,0.5)*dadT(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b());
+}
 
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::isobarExpCoef(const scalar rho,const scalar T) const
@@ -478,18 +495,16 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::cv0(const scalar T) const
 
 
 template<class Specie>
-inline Foam::scalar Foam::PengRobinsonGas<Specie>::CvCalc(const scalar p, const scalar T, const scalar rho) const
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::CvCalc(const scalar rho, const scalar T) const
 {
-    //scalar Vt = this->W() / rho;
-    //return 33.013 - (T * (1 / (this->b() * 2.8284)) * d2adT2(T) * log((2 * Vt + 2 * this->b() - this->b() * 2.8284) / (2 * Vt + 2 * this->b() + this->b() * 2.8284)));
     return this->cv0(T)+T*this->integral_d2pdT2_dv(rho, T);
 }
 
 template<class Specie>
-inline Foam::scalar Foam::PengRobinsonGas<Specie>::CpCalc(const scalar p, const scalar T, const scalar rho) const
+inline Foam::scalar Foam::PengRobinsonGas<Specie>::CpCalc(const scalar rho, const scalar T) const
 {
     scalar Vt = this->W()/rho;
-    scalar Cv = CvCalc(p, T, rho);
+    scalar Cv = CvCalc(rho, T);
     scalar Cp = Cv - (T * sqr(dpdT(rho, T))) / min(dpdv(rho, T),-1);
   //  Info << "Cp: " << Cp << ", Cv: " << Cv << ", T: "<< T << endl;
     return Cp;
@@ -513,7 +528,7 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::psi
 
     scalar psiNew =  
     -(
-        (T*beta*beta-beta)/this->CpCalc(p,T,rho)
+        (T*beta*beta-beta)/this->CpCalc(rho,T)
         -this->isothermalCompressiblity(rho,T)*rho
     );
 
@@ -610,7 +625,8 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::cpMcv
     scalar T
 ) const
 {
-    return this->RR*Z(p, T);
+    scalar rho=this->rho(p,T);
+    return this->CpCalc(rho,T) - this->CvCalc(rho,T);
 }
 
 

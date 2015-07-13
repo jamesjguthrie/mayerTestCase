@@ -98,22 +98,55 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::limit
 
 
 template<class EquationOfState, int PolySize>
+inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::e0
+(
+    const scalar T
+) const
+{
+    return hCoeffs_.value(T) - this->RR*T;
+}
+
+template<class EquationOfState, int PolySize>
 inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::cp
 (
     const scalar p, const scalar T
 ) const
 {
     scalar Z = this->Z(p,T);
+
+    scalar rho = p/(Z * this->R() * T);
+
+    scalar Vt = this->volTranslation(rho, T) + (this->W() / rho);
+
+    rho = this->W() / Vt;
     
-    scalar CpReal = this->CpCalc(p,T,p/(Z*this->R()*T));
-
-//    scalar CpPerfect = CpCoeffs_.value(T);
-
-//    Info << "CpReal: " << CpReal << ", CpPerfect: " << CpPerfect << endl;
+    scalar CpReal = this->CpCalc(rho,T);
 
     return CpReal;
 }
 
+template<class EquationOfState, int PolySize>
+inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::cv
+(
+    const scalar rho, const scalar T
+) const
+{
+    return this->CvCalc(rho,T);
+}
+
+template<class EquationOfState, int PolySize>
+inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::e
+(
+    const scalar rho, const scalar T
+) const
+{
+    return (
+    -this->Tstd*(this->integral_dpdT_dv(this->rhostd(),this->Tstd))
+	+(this->integral_p_dv(this->rhostd(),this->Tstd))
+	+this->e0(T)-this->e0(this->Tstd)
+	+T*this->integral_dpdT_dv(rho,T)
+	-this->integral_p_dv(rho,T));
+}
 
 template<class EquationOfState, int PolySize>
 inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::ha
@@ -121,7 +154,15 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::ha
     const scalar p, const scalar T
 ) const
 {
-    return hCoeffs_.value(T);
+    scalar Z = this->Z(p,T);
+
+    scalar rho = p/(Z * this->R() * T);
+
+    scalar Vt = this->volTranslation(rho, T) + (this->W() / rho);
+
+    rho = this->W() / Vt;
+    
+    return this->e(rho,T)+this->p(rho,T)/rho*this->W()-this->Pstd/this->rhostd()*this->W();
 }
 
 
@@ -150,7 +191,12 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::s
     const scalar T
 ) const
 {
-    return sCoeffs_.value(T);
+    scalar rho = this->rho(p,T);
+
+    return -(this->integral_dpdT_dv(this->rhostd(),this->Tstd))
+    +(this->sCoeffs_.value(T)-sCoeffs_.value(this->Tstd))
+    -this->RR*log(T/this->Tstd)
+    + this->integral_dpdT_dv(rho,T);
 }
 
 
