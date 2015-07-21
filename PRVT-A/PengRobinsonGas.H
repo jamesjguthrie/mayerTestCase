@@ -120,6 +120,8 @@ class PengRobinsonGas
         //- Acentric factor [-]
         scalar omega_;
 
+	scalar rho_;
+
     //-Peng Robinson factors
     scalar n_; 
     scalar a0_;
@@ -160,7 +162,8 @@ public:
             const scalar& Pc,
 	    const scalar& CpEoS,
 	    const Polynomial<8>& CpCoeffs,
-	    const scalar& omega
+	    const scalar& omega,
+	    const scalar& rho
         );
 
         //- Construct from Istream

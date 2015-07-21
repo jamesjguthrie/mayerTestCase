@@ -39,7 +39,8 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     const scalar& Pc,
     const scalar& CpEoS,
     const Polynomial<8>& CpCoeffs,
-    const scalar& omega
+    const scalar& omega,
+    const scalar& rho
 )
 :
     Specie(sp),
@@ -50,6 +51,7 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     CpEoS_(CpEoS),
     CpCoeffs_(CpCoeffs),
     omega_(omega),
+    rho_(rho),
     TSave(0),
     ZSave(0),
     aSave(0),
@@ -75,6 +77,7 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     CpEoS_(pg.CpEoS_),
     CpCoeffs_(pg.CpCoeffs_),
     omega_(pg.omega_),
+    rho_(pg.rho_),
     a0_(pg.a0_),
     b_(pg.b_),
     n_(pg.n_),
@@ -649,6 +652,7 @@ inline void Foam::PengRobinsonGas<Specie>::operator+=
     Zc_ = molr1*Zc_ + molr2*pg.Zc_;
     Pc_ = specie::RR*Zc_*Tc_/Vc_;
     omega_ = molr1*omega_ + molr2*pg.omega_;
+    rho_ = molr1*rho_ + molr2*pg.rho_;
 }
 
 
@@ -670,6 +674,7 @@ inline void Foam::PengRobinsonGas<Specie>::operator-=
     Zc_ = molr1*Zc_ - molr2*pg.Zc_;
     Pc_ = specie::RR*Zc_*Tc_/Vc_;
     omega_ = molr1*omega_ - molr2*pg.omega_;
+    rho_ = molr1*rho_ - molr2*pg.rho_;
 }
 
 
@@ -706,7 +711,8 @@ Foam::PengRobinsonGas<Specie> Foam::operator+
         Vc,
         Zc,
         specie::RR*Zc*Tc/Vc,
-        molr1*pg1.omega_ + molr2*pg2.omega_
+        molr1*pg1.omega_ + molr2*pg2.omega_,
+	molr1*pg1.rho_ + molr2*pg2.rho_
     );
 }
 
@@ -734,7 +740,8 @@ Foam::PengRobinsonGas<Specie> Foam::operator-
         Vc,
         Zc,
         specie::RR*Zc*Tc/Vc,
-        molr1*pg1.omega_ - molr2*pg2.omega_
+        molr1*pg1.omega_ - molr2*pg2.omega_,
+	molr1*pg1.rho_ - molr2*pg2.rho_
     );
 }
 
@@ -755,7 +762,8 @@ Foam::PengRobinsonGas<Specie> Foam::operator*
         pg.Pc_,
 	pg.CpEoS_,
 	pg.CpCoeffs_,
-        pg.omega_
+        pg.omega_,
+	pg.rho_
     );
 }
 
