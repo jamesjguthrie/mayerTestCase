@@ -142,30 +142,35 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     scalar H = 7.27371;
     scalar S = 18.0323;
     scalar W = -0.76830;
-    scalar Tstar = T/ (this->Tc_/1.2593);
+    scalar Tstar = (1.2593 * T)/ this->Tc_;
     scalar omegaStar = A / pow(Tstar,B) + C / exp(D*Tstar) + E / exp(F*Tstar) + G * pow(Tstar,B) * sin(S * pow(Tstar,W) - H); //reduced collision integral
     scalar omega = this->omega_;
     scalar Fc = 1 - 0.2756 * omega;
     scalar Vc = this->Vc_ / 1000; //converts to cm3/mol
+    scalar sigma = 0.809 * pow(Vc,1/3);
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
-    scalar rhoCalc = this->rho(p,T) / this->W(); //converts to mol/litre
+    scalar rhoCalc = this->rho(p,T);// / this->W(); //converts to mol/litre
     scalar Y = rhoCalc * Vc / 6;
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (310));// / this->W()));
     scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
-    scalar G2 = (a(1, omega) * 
-	((1 - exp(-a(4, omega) * Y)) / Y)
+    scalar expNega4Y = -a(4,omega) * Y;
+    
+    scalar G2 = ((a(1, omega) / y) * 
+	(1 - exp(-a(4, omega) * Y))
 	+ a(2,omega)*G1*exp(a(5,omega)*Y)
 	+ a(3,omega)*G1)
 	/ (a(1,omega)
 	*a(4,omega)
 	+ a(2,omega)
 	+ a(3,omega));
-    scalar muP = (36.344e-6 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega) * pow(Y,2) * G2 * exp(a(8,omega) + a(9,omega)/Tstar + a(10,omega)/pow(Tstar,2));
+    
+    scalar muP = (36.344e-2 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega) * pow(Y,2) * G2 * exp(a(8,omega) + a(9,omega)/Tstar + a(10,omega)/pow(Tstar,2));
     scalar muK = muZero * (1/G2 + a(6,omega)*Y);
     scalar chungMu = muK + muP;
 
-    //Info << "muPolynomial: " << muPolynomial << ", chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
-    //Info << rhoCalc << endl;
-    return chungMu;
+    Info << "muPolynomial: " << muPolynomial << ", chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
+//    Info << Vc << endl;
+    return chungMu / 10;
 }
 
 
