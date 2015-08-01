@@ -199,16 +199,16 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     scalar sigma = 0.809 * pow(Vc,1/3);
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
     //muZero = muZero / 10;
-    Info << muZero << endl;
+    //Info << muZero << endl;
     scalar rho = this->rho(p,T);
     scalar alpha = this->CvCalc(rho,T)/this->R()-3/2;
-    scalar beta = 0.7862 - 0.7109*this->omega_ + 1.3168*pow(this->omega_,2);
+    scalar beta = 0.7862 - 0.7109*omega + 1.3168*pow(omega,2);
     scalar Z = 2.0 + 10.5*pow((T/this->Tc_),2);
-    scalar chungPsi = 1 + ((0.215+0.28288*alpha-1.061*beta+0.26665*Z)/(0.6366+beta*Z+1.061*alpha*beta));
-    scalar chungKappa = 7.452*(muZero / chungPsi);
+    scalar chungPsi = 1 + alpha * ((0.215+0.28288*alpha-1.061*beta+0.26665*Z)/(0.6366+beta*Z+1.061*alpha*beta));
+    scalar chungKappa = 7.452*(muZero / this->W()) * chungPsi;
     chungKappa = chungKappa * 100;
     scalar originalKappa = kappaCoeffs_.value(T)/this->W();
-    Info << chungKappa << " " << originalKappa << endl;
+    //Info << chungKappa << " " << originalKappa << endl;
     return chungKappa;
 }
 

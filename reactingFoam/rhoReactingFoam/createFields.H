@@ -54,6 +54,19 @@ volScalarField Cv
     thermo.Cv()
 );
 
+volScalarField kappa
+(
+    IOobject
+    (
+	"thermo:kappa",
+	runTime.timeName(),
+	mesh,
+	IOobject::NO_READ,
+	IOobject::AUTO_WRITE
+    ),
+    thermo.kappa()
+);
+
 Cv.write();
 
 Info<< "Reading field U\n" << endl;
@@ -69,7 +82,6 @@ volVectorField U
     ),
     mesh
 );
-
 
 volScalarField& p = thermo.p();
 const volScalarField& psi = thermo.psi();
