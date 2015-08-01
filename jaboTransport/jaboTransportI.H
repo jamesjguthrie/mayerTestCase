@@ -168,7 +168,7 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     scalar muK = muZero * (1/G2 + a(6,omega)*Y);
     scalar chungMu = muK + muP;
 
-    Info << "muPolynomial: " << muPolynomial << ", chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
+    //Info << "muPolynomial: " << muPolynomial << ", chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
 //    Info << Vc << endl;
     return chungMu / 10;
 }
@@ -181,7 +181,35 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     const scalar T
 ) const
 {
-    return kappaCoeffs_.value(T)/this->W();
+    scalar A = 1.16145;
+    scalar B = 0.14874;
+    scalar C = 0.52487;
+    scalar D = 0.7732;
+    scalar E = 2.16178;
+    scalar F = 2.43787;
+    scalar G = -6.435e-4;
+    scalar H = 7.27371;
+    scalar S = 18.0323;
+    scalar W = -0.76830;
+    scalar Tstar = (1.2593 * T)/ this->Tc_;
+    scalar omegaStar = A / pow(Tstar,B) + C / exp(D*Tstar) + E / exp(F*Tstar) + G * pow(Tstar,B) * sin(S * pow(Tstar,W) - H); //reduced collision integral
+    scalar omega = this->omega_;
+    scalar Fc = 1 - 0.2756 * omega;
+    scalar Vc = this->Vc_ / 1000; //converts to cm3/mol
+    scalar sigma = 0.809 * pow(Vc,1/3);
+    scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
+    //muZero = muZero / 10;
+    Info << muZero << endl;
+    scalar rho = this->rho(p,T);
+    scalar alpha = this->CvCalc(rho,T)/this->R()-3/2;
+    scalar beta = 0.7862 - 0.7109*this->omega_ + 1.3168*pow(this->omega_,2);
+    scalar Z = 2.0 + 10.5*pow((T/this->Tc_),2);
+    scalar chungPsi = 1 + ((0.215+0.28288*alpha-1.061*beta+0.26665*Z)/(0.6366+beta*Z+1.061*alpha*beta));
+    scalar chungKappa = 7.452*(muZero / chungPsi);
+    chungKappa = chungKappa * 100;
+    scalar originalKappa = kappaCoeffs_.value(T)/this->W();
+    Info << chungKappa << " " << originalKappa << endl;
+    return chungKappa;
 }
 
 
