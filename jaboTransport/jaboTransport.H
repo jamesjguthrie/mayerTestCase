@@ -24,14 +24,16 @@ License
 Class
     Foam::jaboTransport
 
-Description
-    Transport package using jabo functions for mu and kappa
-
 SourceFiles
     jaboTransportI.H
     jaboTransport.C
 
 \*---------------------------------------------------------------------------*/
+
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Chung's method to calculate viscosity and thermal conductivity
+*/
 
 #ifndef jaboTransport_H
 #define jaboTransport_H
@@ -152,6 +154,8 @@ public:
 
         //- Dynamic viscosity [kg/ms]
         inline scalar mu(const scalar p, const scalar T) const;
+
+	inline scalar b(const int i, const scalar omega) const;
 
         //- Thermal conductivity [W/mK]
         inline scalar kappa(const scalar p, const scalar T) const;

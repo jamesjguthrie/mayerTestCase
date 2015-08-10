@@ -23,6 +23,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Chung's method to calculate viscosity and thermal conductivity
+*/
+
 #include "jaboTransport.H"
 #include "IOstreams.H"
 

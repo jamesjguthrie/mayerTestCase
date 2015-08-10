@@ -151,7 +151,7 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
     scalar rhoCalc = this->rho(p,T);// / this->W(); //converts to mol/litre
     scalar Y = rhoCalc * Vc / 6;
-    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (310));// / this->W()));
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (313.3));// / this->W()));
     scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
     scalar expNega4Y = -a(4,omega) * Y;
     
@@ -164,7 +164,8 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
 	+ a(2,omega)
 	+ a(3,omega));
     
-    scalar muP = (36.344e-2 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega) * pow(Y,2) * G2 * exp(a(8,omega) + a(9,omega)/Tstar + a(10,omega)/pow(Tstar,2));
+    scalar muP = (36.344e-4 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega) * pow(Y,2) * G2 * exp(a(8,omega) + a(9,omega)/Tstar + a(10,omega)/pow(Tstar,2));
+    muP *= 100;
     scalar muK = muZero * (1/G2 + a(6,omega)*Y);
     scalar chungMu = muK + muP;
 
@@ -173,6 +174,19 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     return chungMu / 10;
 }
 
+template<class Thermo, int PolySize>
+inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::b
+(
+    const int i,
+    const scalar omega
+) const
+{
+    int index = i - 1;
+    scalar bZero[] = {2.41657, -0.50924, 6.61069, 14.54250, 0.79274, -5.86340, 81.171};
+    scalar bOne[] = {0.74824, -1.50936, 5.62073, -8.91387, 0.82019, 12.80050, 114.158};
+
+    return bZero[index] + bOne[index]*omega;
+}
 
 template<class Thermo, int PolySize>
 inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
@@ -200,16 +214,34 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
     //muZero = muZero / 10;
     //Info << muZero << endl;
-    scalar rho = this->rho(p,T);
-    scalar alpha = this->CvCalc(rho,T)/this->R()-3/2;
+    scalar rhoCalc = this->rho(p,T);
+    scalar Y = rhoCalc * Vc / 6;
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / 313.3);
+    scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
+    scalar expNega4Y = -a(4,omega) * Y;
+
+    scalar G2 = ((a(1, omega) / y) *
+        (1 - exp(-a(4, omega) * Y))
+        + a(2,omega)*G1*exp(a(5,omega)*Y)
+        + a(3,omega)*G1)
+        / (a(1,omega)
+        *a(4,omega)
+        + a(2,omega)
+        + a(3,omega));
+
+    scalar alpha = this->CvCalc(rhoCalc,T)/this->R()-3/2;
     scalar beta = 0.7862 - 0.7109*omega + 1.3168*pow(omega,2);
     scalar Z = 2.0 + 10.5*pow((T/this->Tc_),2);
     scalar chungPsi = 1 + alpha * ((0.215+0.28288*alpha-1.061*beta+0.26665*Z)/(0.6366+beta*Z+1.061*alpha*beta));
-    scalar chungKappa = 7.452*(muZero / this->W()) * chungPsi;
-    chungKappa = chungKappa * 100;
-    scalar originalKappa = kappaCoeffs_.value(T)/this->W();
-    //Info << chungKappa << " " << originalKappa << endl;
-    return chungKappa;
+    scalar kappaZero = 7.452*(muZero / this->W()) * chungPsi;
+    //kappaZero = kappaZero * 100;
+    scalar H2 = (b(1,omega)*(1-exp(-b(4,omega)*Y))/Y + b(2,omega)*G1 * exp(b(5,omega)*Y) + b(3,omega)*G1) / (b(1,omega) * b(4,omega) + b(2,omega) + b(3,omega));
+    scalar kappaP = (3.039e-4*pow(this->Tc_/this->W(),1/2)/pow(this->Vc_,2/3)) * b(7,omega) * pow(Y,2) * H2 * pow(T/this->Tc_,1/2);
+    kappaP *= this->W() * 10;
+    scalar kappaK = kappaZero * (1/H2 + b(6,omega)*Y);
+    //kappaK *= 419;
+    //Info << kappaP << " " << kappaK << endl;
+    return 100 * (kappaP + kappaK);
 }
 
 

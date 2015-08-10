@@ -24,14 +24,16 @@ License
 Class
     Foam::PengRobinsonGas
 
-Description
-    PengRobinsonGas gas equation of state.
-
 SourceFiles
     PengRobinsonGasI.H
     PengRobinsonGas.C
 
 \*---------------------------------------------------------------------------*/
+
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Volume-translated (Abudour's method) Peng Robinson equation of state for real gas prediction
+*/
 
 #ifndef PengRobinsonGas_H
 #define PengRobinsonGas_H

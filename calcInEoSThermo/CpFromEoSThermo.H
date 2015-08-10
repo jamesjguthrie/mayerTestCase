@@ -24,17 +24,16 @@ License
 Class
     Foam::CpFromEoSThermo
 
-Description
-    Thermodynamics package templated on the equation of state, using polynomial
-    functions for cp, h and s
-
-    Polynomials for h and s derived from cp
-
 SourceFiles
     CpFromEoSThermoI.H
     CpFromEoSThermo.C
 
 \*---------------------------------------------------------------------------*/
+
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Calculate cp, cv, etc. directly    
+*/
 
 #ifndef CpFromEoSThermo_H
 #define CpFromEoSThermo_H

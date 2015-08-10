@@ -23,6 +23,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Volume-translated (Abudour's method) Peng Robinson equation of state for real gas prediction
+*/
+
 #include "PengRobinsonGas.H"
 #include "mathematicalConstants.H"
 #include "thermo.H"
@@ -628,7 +633,9 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::cpMcv
     scalar T
 ) const
 {
-    scalar rho=this->rho(p,T);
+    ZSave = this->Z(p,T);
+    scalar rho=this->rho(p,T); //p/(Z*this->R()*T);
+
     return this->CpCalc(rho,T) - this->CvCalc(rho,T);
 }
 

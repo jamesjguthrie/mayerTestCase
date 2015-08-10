@@ -23,6 +23,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Calculate cp, cv, etc. directly    
+*/
+
 #include "CpFromEoSThermo.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //

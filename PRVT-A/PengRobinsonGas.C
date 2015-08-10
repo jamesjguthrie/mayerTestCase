@@ -23,6 +23,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+/*
+    Copyright 2015, James Guthrie, University of Strathclyde
+    Volume-translated (Abudour's method) Peng Robinson equation of state for real gas prediction
+*/
+
 #include "PengRobinsonGas.H"
 #include "IOstreams.H"
 #include "Polynomial.H"
