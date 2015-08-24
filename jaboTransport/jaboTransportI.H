@@ -40,7 +40,9 @@ inline Foam::jaboTransport<Thermo, PolySize>::jaboTransport
 :
     Thermo(pt),
     muCoeffs_(pt.muCoeffs_),
-    kappaCoeffs_(pt.kappaCoeffs_)
+    kappaCoeffs_(pt.kappaCoeffs_),
+    muR_(pt.muR_),
+    k_(pt.k_)
 {}
 
 
@@ -49,12 +51,16 @@ inline Foam::jaboTransport<Thermo, PolySize>::jaboTransport
 (
     const Thermo& t,
     const Polynomial<PolySize>& muCoeffs,
-    const Polynomial<PolySize>& kappaCoeffs
+    const Polynomial<PolySize>& kappaCoeffs,
+    const scalar& muR,
+    const scalar& k
 )
 :
     Thermo(t),
     muCoeffs_(muCoeffs),
-    kappaCoeffs_(kappaCoeffs)
+    kappaCoeffs_(kappaCoeffs),
+    muR_(muR),
+    k_(k)
 {}
 
 
@@ -67,7 +73,9 @@ inline Foam::jaboTransport<Thermo, PolySize>::jaboTransport
 :
     Thermo(name, pt),
     muCoeffs_(pt.muCoeffs_),
-    kappaCoeffs_(pt.kappaCoeffs_)
+    kappaCoeffs_(pt.kappaCoeffs_),
+    muR_(pt.muR_),
+    k_(pt.k_)
 {}
 
 
@@ -110,15 +118,19 @@ template<class Thermo, int PolySize>
 inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::a
 (
     const int i,
-    const scalar omega
+    const scalar omega,
+    const scalar muR,
+    const scalar k
 ) const
 {
     //only valid in nonpolar fluids
     int index = i - 1;
     scalar aZero[] = {6.32402, 0.12102e-2, 5.28346, 6.62263, 19.7454, -1.89992, 24.2745, 0.79716, -0.23816, 0.068629};
     scalar aOne[] = {50.41190, -0.11536e-2, 254.209, 38.0957, 7.63034, -12.5367, 3.44945, 1.11764, 0.067695, 0.34793};
+    scalar aTwo[] = {-51.68010, -0.62571e-2, -168.481, -8.46414, -14.3544, 4.98529, -11.29130, 0.12348e-1, -0.81630, 0.59256};
+    scalar aThree[] = {1189.02, 0.37283e-1, 3898.27, 31.4178, 31.5267, -18.1507, 69.3466, -4.11661, 4.02528, -0.72663};
 
-    return aZero[index] + aOne[index] * omega;
+    return aZero[index] + aOne[index] * omega + aTwo[index] * pow(muR, 4) + aThree[index] * k;
 }
 
 template<class Thermo, int PolySize>
@@ -128,9 +140,7 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     const scalar T
 ) const
 {
-    //only valid in nonpolar fluids
-
-    scalar muPolynomial = muCoeffs_.value(T)/this->W();
+ //   return muCoeffs_.value(T)/this->W();
 
     scalar A = 1.16145;
     scalar B = 0.14874;
@@ -142,50 +152,61 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     scalar H = 7.27371;
     scalar S = 18.0323;
     scalar W = -0.76830;
-    scalar Tstar = (1.2593 * T)/ this->Tc_;
+    scalar Tstar = 1.2593 * (T/ this->Tc_);
     scalar omegaStar = A / pow(Tstar,B) + C / exp(D*Tstar) + E / exp(F*Tstar) + G * pow(Tstar,B) * sin(S * pow(Tstar,W) - H); //reduced collision integral
     scalar omega = this->omega_;
-    scalar Fc = 1 - 0.2756 * omega;
+    scalar Fc = 1 - 0.2756 * omega + 0.059035 * pow(muR_,4) + k_;
     scalar Vc = this->Vc_ / 1000; //converts to cm3/mol
     scalar sigma = 0.809 * pow(Vc,1/3);
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
-    scalar rhoCalc = this->rho(p,T);// / this->W(); //converts to mol/litre
+    scalar rhoCalc = this->rho(p,T) / 1000; //converts to mol/litre
     scalar Y = rhoCalc * Vc / 6;
-    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (313.3));// / this->W()));
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (this->rhoC_/ 1000));
     scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
-    scalar expNega4Y = -a(4,omega) * Y;
+    scalar expNega4Y = -a(4,omega, muR_, k_) * Y;
     
-    scalar G2 = ((a(1, omega) / y) * 
-	(1 - exp(-a(4, omega) * Y))
-	+ a(2,omega)*G1*exp(a(5,omega)*Y)
-	+ a(3,omega)*G1)
-	/ (a(1,omega)
-	*a(4,omega)
-	+ a(2,omega)
-	+ a(3,omega));
+    scalar G2 = ((a(1, omega, muR_, k_) / y) * 
+	(1 - exp(-a(4, omega, muR_, k_) * Y))
+	+ a(2,omega,muR_,k_)*G1*exp(a(5,omega,muR_,k_)*Y)
+	+ a(3,omega,muR_,k_)*G1)
+	/ (a(1,omega,muR_,k_)
+	*a(4,omega,muR_,k_)
+	+ a(2,omega,muR_,k_)
+	+ a(3,omega,muR_,k_));
+    scalar muP = (36.344e-6 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega,muR_,k_) * pow(Y,2) * G2 * exp(a(8,omega,muR_,k_) + a(9,omega,muR_,k_)/Tstar + a(10,omega,muR_,k_)/pow(Tstar,2));
     
-    scalar muP = (36.344e-4 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega) * pow(Y,2) * G2 * exp(a(8,omega) + a(9,omega)/Tstar + a(10,omega)/pow(Tstar,2));
-    muP *= 100;
-    scalar muK = muZero * (1/G2 + a(6,omega)*Y);
+    muP *= 1e10;// / (this->W());
+    muP /= this->W();
+    //muP /= T/this->Tc_;
+    scalar muK = muZero * (1/G2 + a(6,omega,muR_,k_)*Y);
+    muK /= (2*M_PI);
+    //muK *= (this->W()/100);
+    //muK /= 6/((rhoCalc*1000)/this->rhoC_);
     scalar chungMu = muK + muP;
-
-    //Info << "muPolynomial: " << muPolynomial << ", chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
-//    Info << Vc << endl;
-    return chungMu / 10;
+    //chungMu *= (rhoCalc*1000)/this->rhoC_;
+    chungMu /= T/this->Tc_;
+    //Info << "chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
+    //chungMu /= this->W();
+    //chungMu /= T/this->Tc_;
+    //Info << "new chungMu: " << chungMu << endl;
+    return chungMu;
 }
 
 template<class Thermo, int PolySize>
 inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::b
 (
     const int i,
-    const scalar omega
+    const scalar omega,
+    const scalar muR,
+    const scalar k
 ) const
 {
     int index = i - 1;
     scalar bZero[] = {2.41657, -0.50924, 6.61069, 14.54250, 0.79274, -5.86340, 81.171};
     scalar bOne[] = {0.74824, -1.50936, 5.62073, -8.91387, 0.82019, 12.80050, 114.158};
-
-    return bZero[index] + bOne[index]*omega;
+    scalar bTwo[] = {-0.91858, -49.9912, 64.7599, -5.63794, -0.69369, 9.58926, -60.841};
+    scalar bThree[] = {121.721, 69.9834, 27.0389, 74.3435, 6.31734, -65.5292, 466.775};
+    return bZero[index] + bOne[index]*omega + bTwo[index] * pow(muR, 4) + bThree[index] * k;
 }
 
 template<class Thermo, int PolySize>
@@ -195,6 +216,7 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     const scalar T
 ) const
 {
+    
     scalar A = 1.16145;
     scalar B = 0.14874;
     scalar C = 0.52487;
@@ -208,26 +230,26 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     scalar Tstar = (1.2593 * T)/ this->Tc_;
     scalar omegaStar = A / pow(Tstar,B) + C / exp(D*Tstar) + E / exp(F*Tstar) + G * pow(Tstar,B) * sin(S * pow(Tstar,W) - H); //reduced collision integral
     scalar omega = this->omega_;
-    scalar Fc = 1 - 0.2756 * omega;
+    scalar Fc = 1 - 0.2756 * omega  + 0.059035 * pow(muR_,4) + k_;
     scalar Vc = this->Vc_ / 1000; //converts to cm3/mol
     scalar sigma = 0.809 * pow(Vc,1/3);
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
-    //muZero = muZero / 10;
+    //muZero *= 100;
     //Info << muZero << endl;
     scalar rhoCalc = this->rho(p,T);
     scalar Y = rhoCalc * Vc / 6;
-    scalar y = 0.318 * (M_PI/6) * (rhoCalc / 313.3);
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (this->rhoC_));
     scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
-    scalar expNega4Y = -a(4,omega) * Y;
+    scalar expNega4Y = -a(4,omega,muR_,k_) * Y;
 
-    scalar G2 = ((a(1, omega) / y) *
-        (1 - exp(-a(4, omega) * Y))
-        + a(2,omega)*G1*exp(a(5,omega)*Y)
-        + a(3,omega)*G1)
-        / (a(1,omega)
-        *a(4,omega)
-        + a(2,omega)
-        + a(3,omega));
+    scalar G2 = ((a(1, omega,muR_,k_) / y) *
+        (1 - exp(-a(4, omega,muR_,k_) * Y))
+        + a(2,omega,muR_,k_)*G1*exp(a(5,omega,muR_,k_)*Y)
+        + a(3,omega,muR_,k_)*G1)
+        / (a(1,omega,muR_,k_)
+        *a(4,omega,muR_,k_)
+        + a(2,omega,muR_,k_)
+        + a(3,omega,muR_,k_));
 
     scalar alpha = this->CvCalc(rhoCalc,T)/this->R()-3/2;
     scalar beta = 0.7862 - 0.7109*omega + 1.3168*pow(omega,2);
@@ -235,13 +257,16 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     scalar chungPsi = 1 + alpha * ((0.215+0.28288*alpha-1.061*beta+0.26665*Z)/(0.6366+beta*Z+1.061*alpha*beta));
     scalar kappaZero = 7.452*(muZero / this->W()) * chungPsi;
     //kappaZero = kappaZero * 100;
-    scalar H2 = (b(1,omega)*(1-exp(-b(4,omega)*Y))/Y + b(2,omega)*G1 * exp(b(5,omega)*Y) + b(3,omega)*G1) / (b(1,omega) * b(4,omega) + b(2,omega) + b(3,omega));
-    scalar kappaP = (3.039e-4*pow(this->Tc_/this->W(),1/2)/pow(this->Vc_,2/3)) * b(7,omega) * pow(Y,2) * H2 * pow(T/this->Tc_,1/2);
-    kappaP *= this->W() * 10;
-    scalar kappaK = kappaZero * (1/H2 + b(6,omega)*Y);
-    //kappaK *= 419;
-    //Info << kappaP << " " << kappaK << endl;
-    return 100 * (kappaP + kappaK);
+    scalar H2 = (b(1,omega,muR_,k_)*(1-exp(-b(4,omega,muR_,k_)*Y))/Y + b(2,omega,muR_,k_)*G1 * exp(b(5,omega,muR_,k_)*Y) + b(3,omega,muR_,k_)*G1) / (b(1,omega,muR_,k_) * b(4,omega,muR_,k_) + b(2,omega,muR_,k_) + b(3,omega,muR_,k_));
+    scalar kappaP = (3.039e-4*pow(this->Tc_/this->W(),1/2)/pow(this->Vc_,2/3)) * b(7,omega,muR_,k_) * pow(Y,2) * H2 * pow(T/this->Tc_,1/2);
+    kappaP *= this->W()*10;
+    kappaP *= T/this->Tc_;
+    scalar kappaK = kappaZero * (1/H2 + b(6,omega,muR_,k_)*Y);
+    //kappaK /= 10;
+    scalar chungKappa = 100*(kappaP + kappaK);
+    chungKappa /= T/this->Tc_;
+    Info << "chungKappa: " << chungKappa << ", kappaP: " << kappaP << ", kappaK: " << kappaK << ", kappaZero: " << kappaZero << endl;
+    return chungKappa;
 }
 
 
@@ -380,7 +405,9 @@ inline Foam::jaboTransport<Thermo, PolySize> Foam::operator*
     (
         s*static_cast<const Thermo&>(pt),
         pt.muCoeffs_,
-        pt.kappaCoeffs_
+        pt.kappaCoeffs_,
+	pt.muR_,
+	pt.k_
     );
 }
 

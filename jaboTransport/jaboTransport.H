@@ -104,6 +104,9 @@ class jaboTransport
         //  Note: input in [W/m/K], but internally uses [W/m/K/kmol]
         Polynomial<PolySize> kappaCoeffs_;
 
+	scalar muR_;
+
+	scalar k_;
 
     // Private Member Functions
 
@@ -112,7 +115,9 @@ class jaboTransport
         (
             const Thermo& t,
             const Polynomial<PolySize>& muPoly,
-            const Polynomial<PolySize>& kappaPoly
+            const Polynomial<PolySize>& kappaPoly,
+	    const scalar& muR,
+	    const scalar& k
         );
 
 
@@ -150,12 +155,12 @@ public:
             return "jabo<" + Thermo::typeName() + '>';
         }
 
-	inline scalar a(const int i, const scalar omega) const;
+	inline scalar a(const int i, const scalar omega, const scalar muR, const scalar k) const;
 
         //- Dynamic viscosity [kg/ms]
         inline scalar mu(const scalar p, const scalar T) const;
 
-	inline scalar b(const int i, const scalar omega) const;
+	inline scalar b(const int i, const scalar omega, const scalar muR, const scalar k) const;
 
         //- Thermal conductivity [W/mK]
         inline scalar kappa(const scalar p, const scalar T) const;

@@ -38,10 +38,14 @@ Foam::jaboTransport<Thermo, PolySize>::jaboTransport(Istream& is)
 :
     Thermo(is),
     muCoeffs_("muCoeffs<" + Foam::name(PolySize) + '>', is),
-    kappaCoeffs_("kappaCoeffs<" + Foam::name(PolySize) + '>', is)
+    kappaCoeffs_("kappaCoeffs<" + Foam::name(PolySize) + '>', is),
+    muR_("muR", is),
+    k_("k", is)
 {
     muCoeffs_ *= this->W();
     kappaCoeffs_ *= this->W();
+    muR_;
+    k_;
 }
 
 
@@ -65,10 +69,26 @@ Foam::jaboTransport<Thermo, PolySize>::jaboTransport
         (
             "kappaCoeffs<" + Foam::name(PolySize) + '>'
         )
+    ),
+    muR_
+    (
+	readScalar(dict.subDict("transport").lookup
+	(
+	    "muR"
+	))
+    ),
+    k_
+    (
+	readScalar(dict.subDict("transport").lookup
+	(
+	    "k"
+	))
     )
 {
     muCoeffs_ *= this->W();
     kappaCoeffs_ *= this->W();
+    muR_;
+    k_;
 }
 
 
@@ -93,6 +113,7 @@ void Foam::jaboTransport<Thermo, PolySize>::write(Ostream& os) const
         word("kappaCoeffs<" + Foam::name(PolySize) + '>'),
         kappaCoeffs_/this->W()
     );
+    
     os  << indent << dict.dictName() << dict;
 
     os  << decrIndent << token::END_BLOCK << nl;
