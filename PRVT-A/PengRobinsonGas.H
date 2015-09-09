@@ -113,8 +113,10 @@ class PengRobinsonGas
         //- Critical Pressure [Pa]
         scalar Pc_;
 
-	//Cp calculated
-	mutable scalar CpEoS_;
+	//- Critical density [kg/m^3]
+	scalar rhoC_;
+
+	string psiSwitch_;
 
         //- Specific heat at constant pressure polynomial coeffs [J/(kg.K)]
         Polynomial<8> CpCoeffs_;
@@ -162,7 +164,8 @@ public:
             const scalar& Vc,
             const scalar& Zc,
             const scalar& Pc,
-	    const scalar& CpEoS,
+	    const scalar& rhoC,
+	    const string& psiSwitch,
 	    const Polynomial<8>& CpCoeffs,
 	    const scalar& omega,
 	    const scalar& rho

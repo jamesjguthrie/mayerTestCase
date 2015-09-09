@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermo.compressibleGas;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+C7H16
+{
+    specie
+    {
+        nMoles          1;
+        molWeight       100.204;
+    }
+    equationOfState
+    {
+        Tc 540.13;
+        Vc 0.428;
+        Pc 2736000;
+	Zc 0.261;
+        omega 0.349;
+	rhoC 232;
+	psiSwitch "psiE";
+    }
+    thermodynamics
+    {
+        Tlow            200;
+        Thigh           6000;
+        Tcommon         1000;
+          Hf              0;
+          Sf              0; //812.3886;
+          CpCoeffs<8>    ( 925.394404374 -0.7877379723 0.0162267054 -2.07221767297589E-005 8.17157590563422E-009 0 0 0 );
+    }
+    transport
+    {
+	muCoeffs<8>    ( 0 0 0 0 0 0 0 0);
+	kappaCoeffs<8> ( 0 0 0 0 0 0 0 0);
+	muR		0;
+	k		0;
+    }
+}
+
+
+// ************************************************************************* //

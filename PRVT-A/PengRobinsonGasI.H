@@ -42,7 +42,8 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     const scalar& Vc,
     const scalar& Zc,
     const scalar& Pc,
-    const scalar& CpEoS,
+    const scalar& rhoC,
+    const string& psiSwitch,
     const Polynomial<8>& CpCoeffs,
     const scalar& omega,
     const scalar& rho
@@ -53,7 +54,8 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     Vc_(Vc),
     Zc_(Zc),
     Pc_(Pc),
-    CpEoS_(CpEoS),
+    rhoC_(rhoC),
+    psiSwitch_(psiSwitch),
     CpCoeffs_(CpCoeffs),
     omega_(omega),
     rho_(rho),
@@ -79,7 +81,8 @@ inline Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     Pc_(pg.Pc_),
     Vc_(pg.Vc_),
     Zc_(pg.Zc_),
-    CpEoS_(pg.CpEoS_),
+    rhoC_(pg.rhoC_),
+    psiSwitch_(pg.psiSwitch_),
     CpCoeffs_(pg.CpCoeffs_),
     omega_(pg.omega_),
     rho_(pg.rho_),
@@ -511,14 +514,24 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::CvCalc(const scalar rho, cons
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::CpCalc(const scalar rho, const scalar T) const
 {
-    scalar Vt = this->W()/rho;
-    scalar Cv = CvCalc(rho, T);
-    scalar Cp = Cv - (T * sqr(dpdT(rho, T))) / min(dpdv(rho, T),-1);
+ //   scalar Vt = this->W()/rho;
+    //scalar Cv = CvCalc(rho, T);
+   // scalar cpnonlimited = this->CvCalc(rho,T) - (T * sqr(dpdT(rho, T))) / min(dpdv(rho, T),-1);
   //  Info << "Cp: " << Cp << ", Cv: " << Cv << ", T: "<< T << endl;
-    return Cp;
+return  
+ //   min
+   // (
+     //   cpnonlimited*20,
+      //  fabs
+        (
+            this->CvCalc(rho,T)
+            -T*pow((this->dpdT(rho, T)),2)
+                /min(this->dpdv(rho, T),-1)
+        //)
+    );
 }
 
-//drho / dp at constant H
+//drho / dp at constant H or S
 template<class Specie>
 inline Foam::scalar Foam::PengRobinsonGas<Specie>::psi
 (
@@ -527,25 +540,35 @@ inline Foam::scalar Foam::PengRobinsonGas<Specie>::psi
 ) const
 {
     ZSave = Z(p, T);
-    scalar rho = this->rho(p,T); //p/(ZSave * this->R()*T);
-/*    scalar Vut = this->W()/rho;
-    scalar Vt = this->volTranslation(Vut, T) + Vut;
-    rho = this->W() / Vt;*/
+    scalar rho = this->rho(p,T);
 
     scalar beta=this->isobarExpCoef(rho, T);
+    scalar cp = this->CpCalc(rho,T);
 
-    scalar psiNew =  
+    if (psiSwitch_=="psiE")
+    {
+    return  
     -(
-        (T*beta*beta-beta)/this->CpCalc(rho,T)
-        -this->isothermalCompressiblity(rho,T)*rho
+        (
+	    T*pow(beta,2)*(1/rho)
+	    -this->isothermalCompressiblity(rho,T)*cp
+	)
+	/
+	(
+            cp*(1/rho)
+            -beta*this->p(rho,T)*pow(1/rho,2)
+	)
     );
+    }
 
-//    return psiNew / ZSave;
- //   scalar psiPerfect = 1/(ZSave * this->R() * T);
-
-//    Info << "psiNew: " << psiNew << ", psiPerfect: " << psiPerfect << endl;
-
-    return psiNew;
+    else if (psiSwitch_=="psiH")
+    {
+    	return  
+    	-(
+            (T*beta*beta-beta)/cp
+            -this->isothermalCompressiblity(rho,T)*rho
+    	);
+    }
 }
 
 template<class Specie>
@@ -658,6 +681,7 @@ inline void Foam::PengRobinsonGas<Specie>::operator+=
     Vc_ = molr1*Vc_ + molr2*pg.Vc_;
     Zc_ = molr1*Zc_ + molr2*pg.Zc_;
     Pc_ = specie::RR*Zc_*Tc_/Vc_;
+    rhoC_ = molr1*rhoC_ + molr2*pg.rhoC_;
     omega_ = molr1*omega_ + molr2*pg.omega_;
     rho_ = molr1*rho_ + molr2*pg.rho_;
 }
@@ -680,6 +704,7 @@ inline void Foam::PengRobinsonGas<Specie>::operator-=
     Vc_ = molr1*Vc_ - molr2*pg.Vc_;
     Zc_ = molr1*Zc_ - molr2*pg.Zc_;
     Pc_ = specie::RR*Zc_*Tc_/Vc_;
+    rhoC_ = molr1*rhoC_ - molr2*pg.rhoC_;
     omega_ = molr1*omega_ - molr2*pg.omega_;
     rho_ = molr1*rho_ - molr2*pg.rho_;
 }
@@ -709,6 +734,7 @@ Foam::PengRobinsonGas<Specie> Foam::operator+
     const scalar Tc = molr1*pg1.Tc_ + molr2*pg2.Tc_;
     const scalar Vc = molr1*pg1.Vc_ + molr2*pg2.Vc_;
     const scalar Zc = molr1*pg1.Zc_ + molr2*pg2.Zc_;
+    const scalar rhoC = molr1*pg1.rhoC_ + molr2*pg2.rhoC_;
 
     return PengRobinsonGas<Specie>
     (
@@ -718,6 +744,7 @@ Foam::PengRobinsonGas<Specie> Foam::operator+
         Vc,
         Zc,
         specie::RR*Zc*Tc/Vc,
+	rhoC,
         molr1*pg1.omega_ + molr2*pg2.omega_,
 	molr1*pg1.rho_ + molr2*pg2.rho_
     );
@@ -738,6 +765,7 @@ Foam::PengRobinsonGas<Specie> Foam::operator-
     const scalar Tc = molr1*pg1.Tc_ + molr2*pg2.Tc_;
     const scalar Vc = molr1*pg1.Vc_ + molr2*pg2.Vc_;
     const scalar Zc = molr1*pg1.Zc_ + molr2*pg2.Zc_;
+    const scalar rhoC = molr1*pg1.rhoC_ + molr2*pg2.rhoC_;
 
     return PengRobinsonGas<Specie>
     (
@@ -747,6 +775,7 @@ Foam::PengRobinsonGas<Specie> Foam::operator-
         Vc,
         Zc,
         specie::RR*Zc*Tc/Vc,
+	rhoC,
         molr1*pg1.omega_ - molr2*pg2.omega_,
 	molr1*pg1.rho_ - molr2*pg2.rho_
     );
@@ -767,7 +796,8 @@ Foam::PengRobinsonGas<Specie> Foam::operator*
         pg.Vc_,
         pg.Zc_,
         pg.Pc_,
-	pg.CpEoS_,
+	pg.rhoC_,
+	pg.psiSwitch_,
 	pg.CpCoeffs_,
         pg.omega_,
 	pg.rho_

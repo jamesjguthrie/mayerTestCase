@@ -43,7 +43,8 @@ Foam::PengRobinsonGas<Specie>::PengRobinsonGas(Istream& is)
     Vc_(readScalar(is)),
     Zc_(readScalar(is)),
     Pc_(readScalar(is)),
-    CpEoS_(0.0),
+    rhoC_(readScalar(is)),
+    psiSwitch_(is),
     CpCoeffs_("CpCoeffs<8>", is),
     omega_(readScalar(is)),
     rho_(0.0),
@@ -74,6 +75,8 @@ Foam::PengRobinsonGas<Specie>::PengRobinsonGas
     Vc_(readScalar(dict.subDict("equationOfState").lookup("Vc"))),
     Zc_(readScalar(dict.subDict("equationOfState").lookup("Zc"))),
     Pc_(readScalar(dict.subDict("equationOfState").lookup("Pc"))),
+    rhoC_(readScalar(dict.subDict("equationOfState").lookup("rhoC"))),
+    psiSwitch_(dict.subDict("equationOfState").lookup("psiSwitch")),
     CpCoeffs_
     (
         dict.subDict("thermodynamics").lookup
@@ -125,9 +128,10 @@ Foam::Ostream& Foam::operator<<
         << token::SPACE << pg.Vc_
         << token::SPACE << pg.Zc_
         << token::SPACE << pg.Pc_
+	<< token::SPACE << pg.rhoC_
         << token::SPACE << pg.omega_
 	<< token::SPACE << pg.rho_
-	<< token::SPACE << pg.CpEoS_
+	<< token::SPACE << pg.psiSwitch_
 	<< token::SPACE << cpCoeffsOverW;
 
     os.check

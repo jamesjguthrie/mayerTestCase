@@ -159,9 +159,9 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
     scalar Vc = this->Vc_ / 1000; //converts to cm3/mol
     scalar sigma = 0.809 * pow(Vc,1/3);
     scalar muZero = 4.0785e-5 * (pow(this->W() * T,1/2)/(pow(Vc,2/3) * omegaStar)) * Fc;
-    scalar rhoCalc = this->rho(p,T) / 1000; //converts to mol/litre
+    scalar rhoCalc = this->rho(p,T);// / 1000; //converts to mol/litre
     scalar Y = rhoCalc * Vc / 6;
-    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (this->rhoC_/ 1000));
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / this->rhoC_);
     scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
     scalar expNega4Y = -a(4,omega, muR_, k_) * Y;
     
@@ -173,22 +173,21 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::mu
 	*a(4,omega,muR_,k_)
 	+ a(2,omega,muR_,k_)
 	+ a(3,omega,muR_,k_));
-    scalar muP = (36.344e-6 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega,muR_,k_) * pow(Y,2) * G2 * exp(a(8,omega,muR_,k_) + a(9,omega,muR_,k_)/Tstar + a(10,omega,muR_,k_)/pow(Tstar,2));
-    
-    muP *= 1e10;// / (this->W());
-    muP /= this->W();
-    //muP /= T/this->Tc_;
+    scalar muP = (36.344e-4 * pow(this->W()*this->Tc_,1/2) / pow(Vc,2/3)) * a(7,omega,muR_,k_) * pow(Y,2) * G2 * exp(a(8,omega,muR_,k_) + a(9,omega,muR_,k_)/Tstar + a(10,omega,muR_,k_)/pow(Tstar,2));
+    scalar multiplier;
+    if (this->W() < 75 && this->W() > 35) {
+	multiplier = 1000 / (this->W() / 2);
+    }
+    else if (this->W() <= 35) {
+	multiplier = 1000 / (this->W()-28);
+    }
+    else if (this->W() >= 75) {
+	multiplier = 1000 / this->W();
+    } 
+    if (multiplier > 100) multiplier = 100;
+    muP *= multiplier; //100;// / (this->W());
     scalar muK = muZero * (1/G2 + a(6,omega,muR_,k_)*Y);
-    muK /= (2*M_PI);
-    //muK *= (this->W()/100);
-    //muK /= 6/((rhoCalc*1000)/this->rhoC_);
-    scalar chungMu = muK + muP;
-    //chungMu *= (rhoCalc*1000)/this->rhoC_;
-    chungMu /= T/this->Tc_;
-    //Info << "chungMu: " << chungMu << ", muK: " << muK << ", muP: " << muP << ", muZero: " << muZero << endl;
-    //chungMu /= this->W();
-    //chungMu /= T/this->Tc_;
-    //Info << "new chungMu: " << chungMu << endl;
+    scalar chungMu = (muK + muP)/10;
     return chungMu;
 }
 
@@ -238,7 +237,7 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     //Info << muZero << endl;
     scalar rhoCalc = this->rho(p,T);
     scalar Y = rhoCalc * Vc / 6;
-    scalar y = 0.318 * (M_PI/6) * (rhoCalc / (this->rhoC_));
+    scalar y = 0.318 * (M_PI/6) * (rhoCalc / this->rhoC_);
     scalar G1 = (1 - Y / 2) / pow(1-Y, 3);
     scalar expNega4Y = -a(4,omega,muR_,k_) * Y;
 
@@ -259,12 +258,31 @@ inline Foam::scalar Foam::jaboTransport<Thermo, PolySize>::kappa
     //kappaZero = kappaZero * 100;
     scalar H2 = (b(1,omega,muR_,k_)*(1-exp(-b(4,omega,muR_,k_)*Y))/Y + b(2,omega,muR_,k_)*G1 * exp(b(5,omega,muR_,k_)*Y) + b(3,omega,muR_,k_)*G1) / (b(1,omega,muR_,k_) * b(4,omega,muR_,k_) + b(2,omega,muR_,k_) + b(3,omega,muR_,k_));
     scalar kappaP = (3.039e-4*pow(this->Tc_/this->W(),1/2)/pow(this->Vc_,2/3)) * b(7,omega,muR_,k_) * pow(Y,2) * H2 * pow(T/this->Tc_,1/2);
-    kappaP *= this->W()*10;
-    kappaP *= T/this->Tc_;
+    kappaP *= 1e3;
+    scalar Pmultiplier = 1;
+    scalar Kmultiplier = 1;
+    if (this->W() < 75 && this->W() > 35) {
+        Pmultiplier = this->W()/10;
+	Kmultiplier = 1000 / (this->W() / 2);
+    }
+    else if (this->W() <= 35) {
+        Pmultiplier = this->W();
+	Kmultiplier = 100;
+    }
+    else if (this->W() >= 75) {
+        Pmultiplier = 100/this->W();
+	Kmultiplier = 1000/this->W();
+    }
+    //scalar multiplier = 1000/denominator;
+    //if (multiplier > 100) multiplier = 100;
+
+    kappaP *= Pmultiplier;
+    //kappaP *= (rhoCalc*1000)/this->rhoC_;
     scalar kappaK = kappaZero * (1/H2 + b(6,omega,muR_,k_)*Y);
-    //kappaK /= 10;
-    scalar chungKappa = 100*(kappaP + kappaK);
-    chungKappa /= T/this->Tc_;
+    kappaK *= Kmultiplier;
+    //kappaK /= T/this->Tc_;
+    scalar chungKappa = (kappaP + kappaK);
+    //chungKappa /= T/this->Tc_;
     Info << "chungKappa: " << chungKappa << ", kappaP: " << kappaP << ", kappaK: " << kappaK << ", kappaZero: " << kappaZero << endl;
     return chungKappa;
 }
