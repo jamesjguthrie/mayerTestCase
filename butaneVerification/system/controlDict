@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     rhoReactingFoam;
+application     rhoReactingModdedPISOFoam;
 
 startFrom       startTime;
 

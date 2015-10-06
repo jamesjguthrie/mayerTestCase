@@ -19,55 +19,10 @@ volScalarField rho
     (
         "rho",
         runTime.timeName(),
-        mesh,
-	IOobject::NO_READ,
-	IOobject::AUTO_WRITE
+        mesh
     ),
     thermo.rho()
 );
-
-volScalarField Cp
-(
-    IOobject
-    (
-	"thermo:Cp",
-	runTime.timeName(),
-	mesh,
-	IOobject::NO_READ,
-	IOobject::AUTO_WRITE
-    ),
-    thermo.Cp()
-);
-
-Cp.write();
-
-volScalarField Cv
-(
-    IOobject
-    (
-	"thermo:Cv",
-	runTime.timeName(),
-	mesh,
-	IOobject::NO_READ,
-	IOobject::AUTO_WRITE
-    ),
-    thermo.Cv()
-);
-
-volScalarField kappa
-(
-    IOobject
-    (
-	"thermo:kappa",
-	runTime.timeName(),
-	mesh,
-	IOobject::NO_READ,
-	IOobject::AUTO_WRITE
-    ),
-    thermo.kappa()
-);
-
-Cv.write();
 
 Info<< "Reading field U\n" << endl;
 volVectorField U
@@ -83,22 +38,10 @@ volVectorField U
     mesh
 );
 
+
 volScalarField& p = thermo.p();
 const volScalarField& psi = thermo.psi();
 const volScalarField& T = thermo.T();
-
-/*volScalarField psiByDp
-(
-    IOobject
-    (
-        "psiByDp",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    (psi * p)
-);*/
 
 
 #include "compressibleCreatePhi.H"

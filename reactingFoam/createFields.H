@@ -19,41 +19,10 @@ volScalarField rho
     (
         "rho",
         runTime.timeName(),
-        mesh,
-	IOobject::NO_READ,
-	IOobject::AUTO_WRITE
+        mesh
     ),
     thermo.rho()
 );
-
-/*volScalarField rhoHalf
-(
-    IOobject
-    (
-	"rhoHalf",
-	runTime.timeName(),
-	mesh,
-	IOobject::NO_READ,
-	IOobject::AUTO_WRITE
-    ),
-    (rho + dimensionedScalar("rhoInjector", dimensionSet(1, -3, 0, 0, 0), thermo.lookup("rhoInjector"))) / 2
-);*/
-
-volScalarField Cp
-(
-    IOobject
-    (
-        "thermo:Cp",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    thermo.Cp()
-);
-
-//Cp.write();
-
 
 Info<< "Reading field U\n" << endl;
 volVectorField U

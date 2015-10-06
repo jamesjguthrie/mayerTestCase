@@ -19,10 +19,10 @@ thermoType
 {
     type            heRhoThermo;
     mixture         reactingMixture;
-    transport       jabo;
+    transport       chung;
     thermo          CpFromEoS;
     energy          sensibleEnthalpy;
-    equationOfState PengRobinsonGas;
+    equationOfState PRVTA;
     specie          specie;
 }
 
