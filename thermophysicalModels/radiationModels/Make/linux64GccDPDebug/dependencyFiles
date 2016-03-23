@@ -1,0 +1,2 @@
+DEPENDENCIES = \
+submodels/absorptionEmissionModel/wsggmAbsorptionEmission/wsggmAbsorptionEmission.dep

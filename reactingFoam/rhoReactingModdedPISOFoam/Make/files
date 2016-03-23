@@ -1,3 +1,0 @@
-rhoReactingModdedPISOFoam.C
-
-EXE = $(FOAM_APPBIN)/rhoReactingModdedPISOFoam
