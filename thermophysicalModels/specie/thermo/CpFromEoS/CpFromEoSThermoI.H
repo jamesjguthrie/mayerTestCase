@@ -1,28 +1,3 @@
-/*---------------------------------------------------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
-License
-    This file is part of OpenFOAM.
-
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
-\*---------------------------------------------------------------------------*/
-
 /*
     Copyright 2015, James Guthrie, University of Strathclyde
     Calculate cp, cv, etc. directly    
@@ -163,18 +138,18 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::ha
     const scalar p, const scalar T
 ) const
 {
- /*   scalar Z = this->Z(p,T);
+    scalar Z = this->Z(p,T);
     scalar rhoCalc = p/(this->R() * T);
 
-    scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
+ /*   scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
 
     rhoCalc = this->W() / Vt;
 
     rhoCalc = this->rho(p,T,rhoCalc);
-    
-    return this->e(rhoCalc,T)+p/rhoCalc*this->W()-this->Pstd/this->rhostd()*this->W();*/
+   */ 
+    return this->e(rhoCalc,T)+p/rhoCalc*this->W()-this->Pstd/this->rhostd()*this->W();
 
-    return hCoeffs_.value(T);
+//    return hCoeffs_.value(T);
 }
 
 
@@ -203,22 +178,22 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::s
     const scalar T
 ) const
 {
- /*   scalar Z = this->Z(p,T);
+    scalar Z = this->Z(p,T);
 
     scalar rhoCalc = p/(this->R() * T);
 
-    scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
+ /*   scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
 
     rhoCalc = this->W() / Vt;
 
     rhoCalc = this->rho(p,T,rhoCalc);
-
+*/
     return -(this->integral_dpdT_dv(this->rhostd(),this->Tstd))
     +(this->sCoeffs_.value(T)-sCoeffs_.value(this->Tstd))
     -this->RR*log(T/this->Tstd)
-    + this->integral_dpdT_dv(rhoCalc,T);*/
+    + this->integral_dpdT_dv(rhoCalc,T);
 
-    return sCoeffs_.value(T);
+  //  return sCoeffs_.value(T);
 }
 
 

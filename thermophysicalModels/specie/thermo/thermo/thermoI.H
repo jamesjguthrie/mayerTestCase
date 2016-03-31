@@ -61,6 +61,8 @@ inline Foam::scalar Foam::species::thermo<Thermo, Type>::T
             (this->*limit)
             (Test - ((this->*F)(p, Test) - f)/(this->*dFdT)(p, Test));
 
+	//Info << "Tnew: " << Tnew << " Test: " << Test << endl;
+
         if (iter++ > maxIter_)
         {
             FatalErrorIn

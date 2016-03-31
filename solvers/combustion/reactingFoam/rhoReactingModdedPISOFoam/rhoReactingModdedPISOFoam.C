@@ -29,6 +29,7 @@ Description
     thermodynamics package with modded PISO algorithm.
 
 Contribution
+    Modded PISO algorithm
     Copyright James Guthrie 2015
 
 \*---------------------------------------------------------------------------*/
@@ -77,12 +78,12 @@ int main(int argc, char *argv[])
         {
             #include "UEqn.H"
             #include "YEqn.H"
-            #include "EEqn.H"
+            //#include "EEqn.H"
 
             // --- Pressure corrector loop
             while (pimple.correct())
             {
-	//	#include "EEqn.H"
+		#include "EEqn.H" //don't take it out the loop. it's needed for stability.
 		#include "pEqn.H"
             }
 
