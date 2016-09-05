@@ -1,0 +1,69 @@
+# 1 "files"
+# 1 "<built-in>"
+# 1 "<command-line>"
+
+
+
+
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+
+# 17 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 4 "<command-line>" 2
+# 1 "files"
+combustionModel/combustionModel.C
+
+psiCombustionModel/psiCombustionModel/psiCombustionModel.C
+psiCombustionModel/psiCombustionModel/psiCombustionModelNew.C
+psiCombustionModel/psiThermoCombustion/psiThermoCombustion.C
+psiCombustionModel/psiChemistryCombustion/psiChemistryCombustion.C
+
+rhoCombustionModel/rhoCombustionModel/rhoCombustionModel.C
+rhoCombustionModel/rhoCombustionModel/rhoCombustionModelNew.C
+rhoCombustionModel/rhoThermoCombustion/rhoThermoCombustion.C
+rhoCombustionModel/rhoChemistryCombustion/rhoChemistryCombustion.C
+
+edcPSR/edcPSRs.C
+
+LIB = $(FOAM_USER_LIBBIN)/libusercombustionModels

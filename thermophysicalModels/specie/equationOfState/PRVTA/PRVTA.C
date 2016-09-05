@@ -1,3 +1,28 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2014 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 /*
     Copyright 2015, James Guthrie, University of Strathclyde
     Volume-translated (Abudour's method) Peng Robinson equation of state for real gas prediction
@@ -27,7 +52,7 @@ Foam::PRVTA<Specie>::PRVTA(Istream& is)
     b_(0.077796*this->RR*Tc_/Pc_), 
     n_(0.37464+1.54226*omega_-0.26992*pow(omega_,2)),
     TSave(0.0),
-    rhostd_(this->rho(this->Pstd,this->Tstd,this->Pstd/(this->Tstd*this->R()))),
+    rhostd_(this->Pstd,this->Tstd,this->Pstd/(this->Tstd*this->R())),
     ZSave(0.0),
     aSave(0.0),
     daSave(0.0),

@@ -182,7 +182,7 @@ public:
 
             //- Heat capacity at constant pressure [J/(kmol K)]
             inline scalar cp(const scalar p, const scalar T) const;
-
+	    inline scalar cv(const scalar p, const scalar T) const;
             //- Absolute Enthalpy [J/kmol]
             inline scalar ha(const scalar p, const scalar T) const;
 

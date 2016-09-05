@@ -1,0 +1,11 @@
+DEPENDENCIES = \
+combustionModel/combustionModel.dep\
+psiCombustionModel/psiCombustionModel/psiCombustionModel.dep\
+psiCombustionModel/psiCombustionModel/psiCombustionModelNew.dep\
+psiCombustionModel/psiThermoCombustion/psiThermoCombustion.dep\
+psiCombustionModel/psiChemistryCombustion/psiChemistryCombustion.dep\
+rhoCombustionModel/rhoCombustionModel/rhoCombustionModel.dep\
+rhoCombustionModel/rhoCombustionModel/rhoCombustionModelNew.dep\
+rhoCombustionModel/rhoThermoCombustion/rhoThermoCombustion.dep\
+rhoCombustionModel/rhoChemistryCombustion/rhoChemistryCombustion.dep\
+edcPSR/edcPSRs.dep

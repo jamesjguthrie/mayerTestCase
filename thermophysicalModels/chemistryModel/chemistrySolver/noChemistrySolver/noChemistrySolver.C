@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -48,15 +48,17 @@ Foam::noChemistrySolver<ChemistryModel>::~noChemistrySolver()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class ChemistryModel>
-void Foam::noChemistrySolver<ChemistryModel>::solve
+Foam::scalar Foam::noChemistrySolver<ChemistryModel>::solve
 (
     scalarField&,
-    scalar&,
-    scalar&,
-    scalar&,
-    scalar&
+    const scalar,
+    const scalar,
+    const scalar,
+    const scalar
 ) const
-{}
+{
+    return GREAT;
+}
 
 
 // ************************************************************************* //

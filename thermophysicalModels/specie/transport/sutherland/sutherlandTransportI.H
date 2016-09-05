@@ -135,7 +135,9 @@ inline Foam::scalar Foam::sutherlandTransport<Thermo>::mu
     const scalar T
 ) const
 {
-    return As_*::sqrt(T)/(1.0 + Ts_/T);
+    scalar sutherlandmu = As_*::sqrt(T)/(1.0 + Ts_/T);
+    //Info << "mu: " << sutherlandmu << endl;
+    return sutherlandmu;
 }
 
 
@@ -146,7 +148,9 @@ inline Foam::scalar Foam::sutherlandTransport<Thermo>::kappa
 ) const
 {
     scalar Cv_ = this->Cv(p, T);
-    return mu(p, T)*Cv_*(1.32 + 1.77*this->R()/Cv_);
+    scalar sutherlandkappa = mu(p, T)*Cv_*(1.32 + 1.77*this->R()/Cv_);
+    //Info << "kappa: " << sutherlandkappa << endl;
+    return sutherlandkappa;
 }
 
 

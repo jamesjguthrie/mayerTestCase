@@ -32,7 +32,8 @@ template<class CompType, class ThermoType>
 inline Foam::PtrList<Foam::DimensionedField<Foam::scalar, Foam::volMesh> >&
 Foam::chemistryModel<CompType, ThermoType>::RR()
 {
-    return RR_;
+    return _EDC_RR_;
+
 }
 
 
@@ -75,6 +76,36 @@ Foam::chemistryModel<CompType, ThermoType>::RR
     const label i
 ) const
 {
+
+    /*
+     tmp<volScalarField> tRR
+       (
+           new volScalarField
+           (
+               IOobject
+               (
+                   "RR(" + this->Y_[i].name() + ')',
+                   this->time().timeName(),
+                   this->mesh(),
+                   IOobject::NO_READ,
+                   IOobject::NO_WRITE
+               ),
+               this->mesh(),
+               dimensionedScalar("zero", dimMass/dimVolume/dimTime, 0.0),
+               zeroGradientFvPatchScalarField::typeName
+           )
+       );
+
+       if (this->chemistry_)
+       {
+           tRR().internalField() = _EDC_RR_[i];
+           tRR().correctBoundaryConditions();
+       }
+       return tRR;
+       */
+
+   //Info << endl << endl << endl << "************** MASS FUNCTION SHOULD NEVER BE CALLED ***************" << endl << endl<<endl;
+
     return RR_[i];
 }
 
@@ -85,7 +116,36 @@ Foam::chemistryModel<CompType, ThermoType>::RR
     const label i
 )
 {
-    return RR_[i];
+   /*
+    tmp<volScalarField> tRR
+       (
+           new volScalarField
+           (
+               IOobject
+               (
+                   "RR(" + this->Y_[i].name() + ')',
+                   this->time().timeName(),
+                   this->mesh(),
+                   IOobject::NO_READ,
+                   IOobject::NO_WRITE
+               ),
+               this->mesh(),
+               dimensionedScalar("zero", dimMass/dimVolume/dimTime, 0.0),
+               zeroGradientFvPatchScalarField::typeName
+           )
+       );
+
+       if (this->chemistry_)
+       {
+           tRR().internalField() = _EDC_RR_[i];
+           tRR().correctBoundaryConditions();
+       }
+
+       return tRR;
+       */
+
+       return RR_[i];
+
 }
 
 

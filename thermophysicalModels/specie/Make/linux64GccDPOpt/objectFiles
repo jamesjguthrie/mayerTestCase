@@ -1,0 +1,4 @@
+OBJECTS = \
+$(OBJECTS_DIR)/atomicWeights.o\
+$(OBJECTS_DIR)/specie.o\
+$(OBJECTS_DIR)/makeReactions.o

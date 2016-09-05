@@ -1,0 +1,18 @@
+SOURCE = \
+chemistryModel/basicChemistryModel/basicChemistryModel.C\
+chemistryModel/psiChemistryModel/psiChemistryModel.C\
+chemistryModel/psiChemistryModel/psiChemistryModels.C\
+chemistryModel/rhoChemistryModel/rhoChemistryModel.C\
+chemistryModel/rhoChemistryModel/rhoChemistryModels.C\
+chemistryModel/binaryTree/binaryNode.C\
+chemistryModel/binaryTree/binaryTreeAdd.C\
+chemistryModel/binaryTree/binaryTree.C\
+chemistryModel/binaryTree/binaryTreeClean.C\
+chemistryModel/binaryTree/binaryTreeInsert.C\
+chemistryModel/binaryTree/binaryTreeScan.C\
+chemistryModel/binaryTree/binaryTreeSearch.C\
+chemistryModel/binaryTree/chemPoint.C\
+chemistryModel/RADAU5/RADAU5s.cpp\
+chemistryModel/RADAU5/RADAU5.cpp\
+chemistryModel/RADAU5/decsol.cpp\
+chemistrySolver/chemistrySolver/makeChemistrySolvers.C

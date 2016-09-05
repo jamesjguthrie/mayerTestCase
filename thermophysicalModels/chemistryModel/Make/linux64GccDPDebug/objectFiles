@@ -1,0 +1,18 @@
+OBJECTS = \
+$(OBJECTS_DIR)/basicChemistryModel.o\
+$(OBJECTS_DIR)/psiChemistryModel.o\
+$(OBJECTS_DIR)/psiChemistryModels.o\
+$(OBJECTS_DIR)/rhoChemistryModel.o\
+$(OBJECTS_DIR)/rhoChemistryModels.o\
+$(OBJECTS_DIR)/binaryNode.o\
+$(OBJECTS_DIR)/binaryTreeAdd.o\
+$(OBJECTS_DIR)/binaryTree.o\
+$(OBJECTS_DIR)/binaryTreeClean.o\
+$(OBJECTS_DIR)/binaryTreeInsert.o\
+$(OBJECTS_DIR)/binaryTreeScan.o\
+$(OBJECTS_DIR)/binaryTreeSearch.o\
+$(OBJECTS_DIR)/chemPoint.o\
+$(OBJECTS_DIR)/RADAU5s.o\
+$(OBJECTS_DIR)/RADAU5.o\
+$(OBJECTS_DIR)/decsol.o\
+$(OBJECTS_DIR)/makeChemistrySolvers.o

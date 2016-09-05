@@ -10,7 +10,6 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/properties/solidProperties/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/properties/solidMixtureProperties/lnInclude \
     -I$(FOAM_USER_LIBBIN)/thermophysicalModels/reactionThermo/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/radiationModels/lnInclude 
 
 LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
@@ -24,4 +23,3 @@ LIB_LIBS = \
     -lliquidMixtureProperties \
     -lsolidProperties \
     -lliquidProperties \
-    -lradiationModels

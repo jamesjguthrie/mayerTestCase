@@ -1,0 +1,6 @@
+include chemistryReaders/chemistryReader/makeChemistryReaders.dep
+include mixtures/basicMultiComponentMixture/basicMultiComponentMixture.dep
+include psiReactionThermo/psiReactionThermo.dep
+include psiReactionThermo/psiReactionThermos.dep
+include rhoReactionThermo/rhoReactionThermo.dep
+include rhoReactionThermo/rhoReactionThermos.dep

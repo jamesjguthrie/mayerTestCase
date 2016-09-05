@@ -178,7 +178,7 @@ public:
                 inline scalar he(const scalar p, const scalar T) const;
 
                 //- Heat capacity at constant volume [J/(kmol K)]
-                inline scalar cv(const scalar p, const scalar T) const;
+            //    inline scalar cv(const scalar p, const scalar T) const;
 
                 //- Heat capacity at constant pressure/volume [J/(kmol K)]
                 inline scalar cpv(const scalar p, const scalar T) const;

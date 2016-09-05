@@ -1,3 +1,28 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 /*
     Copyright 2015, James Guthrie, University of Strathclyde
     Chung's method to calculate viscosity and thermal conductivity
@@ -115,7 +140,7 @@ inline Foam::scalar Foam::chungTransport<Thermo, PolySize>::mu
     const scalar T
 ) const
 {
-   // return muCoeffs_.value(T)/this->W();
+//    return muCoeffs_.value(T) / this->W();
 
     scalar A = 1.16145;
     scalar B = 0.14874;
@@ -163,7 +188,9 @@ inline Foam::scalar Foam::chungTransport<Thermo, PolySize>::mu
     muP *= multiplier; //100;// / (this->W());
     scalar muK = muZero * (1/G2 + a(6,omega,muR_,k_)*Y);
     scalar chungMu = (muK + muP)/10;
+    //Info << "chungMu: " << chungMu << " muK: " << muK << " muZero: " << muZero << endl;
     return chungMu;
+
 }
 
 template<class Thermo, int PolySize>
@@ -190,6 +217,8 @@ inline Foam::scalar Foam::chungTransport<Thermo, PolySize>::kappa
     const scalar T
 ) const
 {
+//    return kappaCoeffs_.value(T) / this->W();
+ 
     scalar A = 1.16145;
     scalar B = 0.14874;
     scalar C = 0.52487;
@@ -224,7 +253,7 @@ inline Foam::scalar Foam::chungTransport<Thermo, PolySize>::kappa
         + a(2,omega,muR_,k_)
         + a(3,omega,muR_,k_));
 
-    scalar alpha = this->CvCalc(rhoCalc,T)/this->R()-3/2;
+    scalar alpha = this->cv(p,T)/this->R()-3/2;
     scalar beta = 0.7862 - 0.7109*omega + 1.3168*pow(omega,2);
     scalar Z = 2.0 + 10.5*pow((T/this->Tc_),2);
     scalar chungPsi = 1 + alpha * ((0.215+0.28288*alpha-1.061*beta+0.26665*Z)/(0.6366+beta*Z+1.061*alpha*beta));
@@ -245,7 +274,7 @@ inline Foam::scalar Foam::chungTransport<Thermo, PolySize>::kappa
     }
     else if (this->W() >= 75) {
         Pmultiplier = 100/this->W();
-	Kmultiplier = 1000/this->W();
+	Kmultiplier = 1000/(this->W()/2);
     }
     //scalar multiplier = 1000/denominator;
     //if (multiplier > 100) multiplier = 100;
@@ -259,7 +288,7 @@ inline Foam::scalar Foam::chungTransport<Thermo, PolySize>::kappa
     //chungKappa /= T/this->Tc_;
     //Info << "chungKappa: " << chungKappa << ", kappaP: " << kappaP << ", kappaK: " << kappaK << ", kappaZero: " << kappaZero << endl;
     return chungKappa;
-    
+
 }
 
 

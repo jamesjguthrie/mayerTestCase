@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2013-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -34,62 +34,10 @@ License
 namespace Foam
 {
     // Chemistry solvers based on sensibleEnthalpy
-    makeChemistrySolverTypes(rhoChemistryModel, PRVTAPhysics);
     makeChemistrySolverTypes(psiChemistryModel, PRVTAPhysics);
-    makeChemistrySolverTypes(psiChemistryModel, constGasHThermoPhysics);
-    makeChemistrySolverTypes(psiChemistryModel, gasHThermoPhysics);
-    makeChemistrySolverTypes
-    (
-        psiChemistryModel,
-        constIncompressibleGasHThermoPhysics
-    );
-    makeChemistrySolverTypes
-    (
-        psiChemistryModel,
-        incompressibleGasHThermoPhysics)
-    ;
-    makeChemistrySolverTypes(psiChemistryModel, icoPoly8HThermoPhysics);
-    makeChemistrySolverTypes(rhoChemistryModel, constGasHThermoPhysics);
-    makeChemistrySolverTypes(rhoChemistryModel, gasHThermoPhysics);
-    makeChemistrySolverTypes
-    (
-        rhoChemistryModel,
-        constIncompressibleGasHThermoPhysics
-    );
-    makeChemistrySolverTypes
-    (
-        rhoChemistryModel,
-        incompressibleGasHThermoPhysics
-    );
-    makeChemistrySolverTypes(rhoChemistryModel, icoPoly8HThermoPhysics);
-
-    // Chemistry solvers based on sensibleInternalEnergy
-    makeChemistrySolverTypes(psiChemistryModel, constGasEThermoPhysics);
-    makeChemistrySolverTypes(psiChemistryModel, gasEThermoPhysics);
-    makeChemistrySolverTypes
-    (
-        psiChemistryModel,
-        constIncompressibleGasEThermoPhysics
-    );
-    makeChemistrySolverTypes
-    (
-        psiChemistryModel,
-        incompressibleGasEThermoPhysics
-    );
-    makeChemistrySolverTypes(psiChemistryModel, icoPoly8EThermoPhysics);
-    makeChemistrySolverTypes(rhoChemistryModel, constGasEThermoPhysics);
-    makeChemistrySolverTypes(rhoChemistryModel, gasEThermoPhysics);
-    makeChemistrySolverTypes
-    (
-        rhoChemistryModel,
-        constIncompressibleGasEThermoPhysics
-    );
-    makeChemistrySolverTypes
-    (
-        rhoChemistryModel,
-        incompressibleGasEThermoPhysics
-    );
-    makeChemistrySolverTypes(rhoChemistryModel, icoPoly8EThermoPhysics);
+    makeChemistrySolverTypes(psiChemistryModel, idealGasPhysics);
+    makeChemistrySolverTypes(rhoChemistryModel, PRVTAPhysics);
+    makeChemistrySolverTypes(rhoChemistryModel, idealGasPhysics);
 }
 
 

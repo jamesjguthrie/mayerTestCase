@@ -1,0 +1,9 @@
+$(OBJECTS_DIR)/RADAU5s.o: chemistryModel/RADAU5/RADAU5s.dep
+chemistryModel/RADAU5/RADAU5s.dep: chemistryModel/RADAU5/RADAU5s.cpp
+chemistryModel/RADAU5/RADAU5s.dep: chemistryModel/RADAU5/RADAU5s.h
+chemistryModel/RADAU5/RADAU5s.dep: chemistryModel/RADAU5/RADAU5.h
+chemistryModel/RADAU5/RADAU5s.dep: chemistryModel/RADAU5/decsol.h
+$(OBJECTS_DIR)/RADAU5s.o: $(EXE_DEP)
+$(OBJECTS_DIR)/RADAU5s.o:
+	@SOURCE_DIR=chemistryModel/RADAU5
+	SOURCE=chemistryModel/RADAU5/RADAU5s.cpp ; $(cpptoo)

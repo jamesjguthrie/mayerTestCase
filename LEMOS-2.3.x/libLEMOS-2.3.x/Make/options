@@ -10,8 +10,8 @@ EXE_INC = \
  -I$(LIB_SRC)/sampling/meshToMeshInterpolation/meshToMesh \
  -I$(LIB_SRC)/fvOptions/lnInclude \
  -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
- -I$(LIB_SRC)/turbulenceModels/LES/LESdeltas/lnInclude \
- -I$(LIB_SRC)/turbulenceModels/LES/LESfilters/lnInclude \
+ -I$(FOAM_USER_LIBBIN)/turbulenceModels/LES/LESdeltas/lnInclude \
+ -I$(FOAM_USER_LIBBIN)/turbulenceModels/LES/LESfilters/lnInclude \
  -I$(LIB_SRC)/postProcessing/functionObjects/field/fieldAverage/fieldAverage \
  -I$(LIB_SRC)/postProcessing/functionObjects/field/fieldAverage/fieldAverageItem \
  -I$(LIB_SRC)/postProcessing/functionObjects/forces/lnInclude \
@@ -28,8 +28,8 @@ LIB_LIBS = \
  -lcompressibleTurbulenceModel \
  -lincompressibleRASModels \
  -lincompressibleLESModels \
- -lLESfilters \
- -lLESdeltas \
+ -luserLESfilters \
+ -luserLESdeltas \
  -ltriSurface \
  -ldynamicMesh \
  -lfieldFunctionObjects \

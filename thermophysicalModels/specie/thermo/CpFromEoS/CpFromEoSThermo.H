@@ -1,3 +1,35 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::CpFromEoSThermo
+
+SourceFiles
+    CpFromEoSThermoI.H
+    CpFromEoSThermo.C
+
+\*---------------------------------------------------------------------------*/
+
 /*
     Copyright 2015, James Guthrie, University of Strathclyde
     Calculate cp, cv, etc. directly    
@@ -77,10 +109,6 @@ class CpFromEoSThermo
         //- Specific heat at constant pressure polynomial coeffs [J/(kg.K)]
         Polynomial<PolySize> CpCoeffs_;
 
-	//Get Cp calculated in EoS
-
-	mutable scalar CpEoS_;
-
 	mutable scalar counter;
 
 	//- Enthalpy polynomial coeffs - derived from cp [J/kg]
@@ -99,7 +127,6 @@ class CpFromEoSThermo
             const EquationOfState& pt,
             const scalar Hf,
             const scalar Sf,
-            const scalar CpEoS,
 	    const Polynomial<PolySize>& CpCoeffs,
             const typename Polynomial<PolySize>::intPolyType& hCoeffs,
             const Polynomial<PolySize>& sCoeffs
@@ -142,7 +169,7 @@ public:
 	    //- Heat capacity at constant pressure [J/(kmol K)]
             inline scalar cp(const scalar p, const scalar T) const;
 
-	    inline scalar cv(const scalar rho, const scalar T) const;
+	    inline scalar cv(const scalar p, const scalar T) const;
 
             //- Absolute Enthalpy [J/kmol]
             inline scalar ha(const scalar p, const scalar T) const;

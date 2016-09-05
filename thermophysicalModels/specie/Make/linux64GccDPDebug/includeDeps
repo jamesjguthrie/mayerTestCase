@@ -1,0 +1,3 @@
+include atomicWeights/atomicWeights.dep
+include specie/specie.dep
+include reaction/reactions/makeReactions.dep

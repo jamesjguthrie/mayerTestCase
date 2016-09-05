@@ -12,6 +12,6 @@ LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lfluidThermophysicalModels \
     -luserreactionThermophysicalModels \
-    -lspecie \
+    -luserspecie \
     -lthermophysicalFunctions \
     -lODE

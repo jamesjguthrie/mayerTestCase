@@ -1,0 +1,10 @@
+include combustionModel/combustionModel.dep
+include psiCombustionModel/psiCombustionModel/psiCombustionModel.dep
+include psiCombustionModel/psiCombustionModel/psiCombustionModelNew.dep
+include psiCombustionModel/psiThermoCombustion/psiThermoCombustion.dep
+include psiCombustionModel/psiChemistryCombustion/psiChemistryCombustion.dep
+include rhoCombustionModel/rhoCombustionModel/rhoCombustionModel.dep
+include rhoCombustionModel/rhoCombustionModel/rhoCombustionModelNew.dep
+include rhoCombustionModel/rhoThermoCombustion/rhoThermoCombustion.dep
+include rhoCombustionModel/rhoChemistryCombustion/rhoChemistryCombustion.dep
+include edcPSR/edcPSRs.dep

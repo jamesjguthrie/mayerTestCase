@@ -1,0 +1,4 @@
+SOURCE = \
+atomicWeights/atomicWeights.C\
+specie/specie.C\
+reaction/reactions/makeReactions.C

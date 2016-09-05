@@ -61,8 +61,6 @@ inline Foam::scalar Foam::species::thermo<Thermo, Type>::T
             (this->*limit)
             (Test - ((this->*F)(p, Test) - f)/(this->*dFdT)(p, Test));
 
-	//Info << "Tnew: " << Tnew << " Test: " << Test << endl;
-
         if (iter++ > maxIter_)
         {
             FatalErrorIn
@@ -116,12 +114,12 @@ Foam::species::thermo<Thermo, Type>::he(const scalar p, const scalar T) const
 }
 
 
-template<class Thermo, template<class> class Type>
+/*template<class Thermo, template<class> class Type>
 inline Foam::scalar
 Foam::species::thermo<Thermo, Type>::cv(const scalar p, const scalar T) const
 {
     return this->cp(p, T) - this->cpMcv(p, T);
-}
+}*/
 
 
 template<class Thermo, template<class> class Type>

@@ -1,0 +1,7 @@
+LOCAL_OBJECTS = \
+makeChemistryReaders.o\
+basicMultiComponentMixture.o\
+psiReactionThermo.o\
+psiReactionThermos.o\
+rhoReactionThermo.o\
+rhoReactionThermos.o

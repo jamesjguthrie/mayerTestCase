@@ -4,4 +4,6 @@ makeType=${1:-libso}
 set -x
 
 ./thermophysicalModels/Allwmake
+#./LEMOS-2.3.x/libLEMOS-2.3.x/turbulenceModels/LES/Allwmake
+wmake $makeType LEMOS-2.2.x/libLEMOS-2.2.x
 wmake $makeType combustionModels

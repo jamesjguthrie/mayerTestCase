@@ -18,7 +18,7 @@ code provided by:
 #ifndef _DECSOL_H_
 #define _DECSOL_H_
 
-#include <math.h>
+#include "math.h"
 #include <stdlib.h>
 
 template<class T>

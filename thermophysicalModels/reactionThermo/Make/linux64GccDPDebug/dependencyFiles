@@ -1,0 +1,7 @@
+DEPENDENCIES = \
+chemistryReaders/chemistryReader/makeChemistryReaders.dep\
+mixtures/basicMultiComponentMixture/basicMultiComponentMixture.dep\
+psiReactionThermo/psiReactionThermo.dep\
+psiReactionThermo/psiReactionThermos.dep\
+rhoReactionThermo/rhoReactionThermo.dep\
+rhoReactionThermo/rhoReactionThermos.dep

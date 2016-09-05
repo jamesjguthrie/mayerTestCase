@@ -16,4 +16,6 @@ LIB_LIBS = \
     -lfiniteVolume \
     -lcompressibleLESModels \
     -lmeshTools \
+    -luserspecie \
+    -luserreactionThermophysicalModels \
     -luserchemistryModel

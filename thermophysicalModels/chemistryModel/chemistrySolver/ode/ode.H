@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -55,10 +55,12 @@ class ode
     // Private data
 
         dictionary coeffsDict_;
+        const word solverName_;
         autoPtr<ODESolver> odeSolver_;
 
-        // Solver data
-        mutable scalarField cTp_;
+        // Model constants
+
+            scalar eps_;
 
 
 public:
@@ -79,14 +81,13 @@ public:
 
     // Member Functions
 
-        //- Update the concentrations and return the chemical time
-        virtual void solve
+        virtual scalar solve
         (
             scalarField& c,
-            scalar& T,
-            scalar& p,
-            scalar& deltaT,
-            scalar& subDeltaT
+            const scalar T,
+            const scalar p,
+            const scalar t0,
+            const scalar dt
         ) const;
 };
 

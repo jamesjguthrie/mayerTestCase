@@ -85,25 +85,7 @@ namespace Foam
 {
     // sensible enthalpy based reactions
     makeReactions(PRVTAPhysics, PRVTAReaction)
-    makeReactions(constGasHThermoPhysics, constGasHReaction)
-    makeReactions(gasHThermoPhysics, gasHReaction)
-    makeReactions
-    (
-        constIncompressibleGasHThermoPhysics,
-        constIncompressibleGasHReaction
-    )
-    makeReactions(incompressibleGasHThermoPhysics, incompressibleGasHReaction)
-    makeReactions(icoPoly8HThermoPhysics, icoPoly8HReaction)
-
-    makeReactions(constGasEThermoPhysics, constGasEReaction)
-    makeReactions(gasEThermoPhysics, gasEReaction)
-    makeReactions
-    (
-        constIncompressibleGasEThermoPhysics,
-        constIncompressibleGasEReaction
-    )
-    makeReactions(incompressibleGasEThermoPhysics, incompressibleGasEReaction)
-    makeReactions(icoPoly8EThermoPhysics, icoPoly8EReaction)
+    makeReactions(idealGasPhysics, idealGasReaction)
 }
 
 // ************************************************************************* //

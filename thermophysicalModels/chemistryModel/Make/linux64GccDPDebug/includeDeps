@@ -1,0 +1,17 @@
+include chemistryModel/basicChemistryModel/basicChemistryModel.dep
+include chemistryModel/psiChemistryModel/psiChemistryModel.dep
+include chemistryModel/psiChemistryModel/psiChemistryModels.dep
+include chemistryModel/rhoChemistryModel/rhoChemistryModel.dep
+include chemistryModel/rhoChemistryModel/rhoChemistryModels.dep
+include chemistryModel/binaryTree/binaryNode.dep
+include chemistryModel/binaryTree/binaryTreeAdd.dep
+include chemistryModel/binaryTree/binaryTree.dep
+include chemistryModel/binaryTree/binaryTreeClean.dep
+include chemistryModel/binaryTree/binaryTreeInsert.dep
+include chemistryModel/binaryTree/binaryTreeScan.dep
+include chemistryModel/binaryTree/binaryTreeSearch.dep
+include chemistryModel/binaryTree/chemPoint.dep
+include chemistryModel/RADAU5/RADAU5s.dep
+include chemistryModel/RADAU5/RADAU5.dep
+include chemistryModel/RADAU5/decsol.dep
+include chemistrySolver/chemistrySolver/makeChemistrySolvers.dep

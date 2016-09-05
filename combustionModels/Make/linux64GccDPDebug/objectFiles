@@ -1,0 +1,11 @@
+OBJECTS = \
+$(OBJECTS_DIR)/combustionModel.o\
+$(OBJECTS_DIR)/psiCombustionModel.o\
+$(OBJECTS_DIR)/psiCombustionModelNew.o\
+$(OBJECTS_DIR)/psiThermoCombustion.o\
+$(OBJECTS_DIR)/psiChemistryCombustion.o\
+$(OBJECTS_DIR)/rhoCombustionModel.o\
+$(OBJECTS_DIR)/rhoCombustionModelNew.o\
+$(OBJECTS_DIR)/rhoThermoCombustion.o\
+$(OBJECTS_DIR)/rhoChemistryCombustion.o\
+$(OBJECTS_DIR)/edcPSRs.o

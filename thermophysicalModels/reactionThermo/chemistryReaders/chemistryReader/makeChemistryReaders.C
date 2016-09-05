@@ -41,53 +41,8 @@ namespace Foam
 
 makeChemistryReader(PRVTAPhysics);
 makeChemistryReaderType(foamChemistryReader, PRVTAPhysics);
-makeChemistryReader(constGasHThermoPhysics);
-makeChemistryReader(gasHThermoPhysics);
-makeChemistryReader(constIncompressibleGasHThermoPhysics);
-makeChemistryReader(incompressibleGasHThermoPhysics);
-makeChemistryReader(icoPoly8HThermoPhysics);
-
-makeChemistryReaderType(foamChemistryReader, constGasHThermoPhysics);
-makeChemistryReaderType(foamChemistryReader, gasHThermoPhysics);
-makeChemistryReaderType
-(
-    foamChemistryReader,
-    constIncompressibleGasHThermoPhysics
-);
-makeChemistryReaderType(foamChemistryReader, incompressibleGasHThermoPhysics);
-makeChemistryReaderType(foamChemistryReader, icoPoly8HThermoPhysics);
-
-
-
-// Solid chemistry readers based on sensibleInternalEnergy
-
-makeChemistryReader(constGasEThermoPhysics);
-makeChemistryReader(gasEThermoPhysics);
-makeChemistryReader(constIncompressibleGasEThermoPhysics);
-makeChemistryReader(incompressibleGasEThermoPhysics);
-makeChemistryReader(icoPoly8EThermoPhysics);
-
-makeChemistryReaderType(foamChemistryReader, constGasEThermoPhysics);
-makeChemistryReaderType(foamChemistryReader, gasEThermoPhysics);
-makeChemistryReaderType
-(
-    foamChemistryReader,
-    constIncompressibleGasEThermoPhysics
-);
-makeChemistryReaderType(foamChemistryReader, incompressibleGasEThermoPhysics);
-makeChemistryReaderType(foamChemistryReader, icoPoly8EThermoPhysics);
-
-
-// Solid chemistry readers for solids based on sensible Enthaly
-
-makeChemistryReader(hConstSolidThermoPhysics);
-makeChemistryReader(hExponentialSolidThermoPhysics);
-makeChemistryReader(hExpKappaConstSolidThermoPhysics);
-
-makeChemistryReaderType(foamChemistryReader, hConstSolidThermoPhysics);
-makeChemistryReaderType(foamChemistryReader, hExponentialSolidThermoPhysics);
-makeChemistryReaderType(foamChemistryReader, hExpKappaConstSolidThermoPhysics);
-
+makeChemistryReader(idealGasPhysics);
+makeChemistryReaderType(foamChemistryReader, idealGasPhysics);
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

@@ -1,0 +1,11 @@
+LOCAL_OBJECTS = \
+combustionModel.o\
+psiCombustionModel.o\
+psiCombustionModelNew.o\
+psiThermoCombustion.o\
+psiChemistryCombustion.o\
+rhoCombustionModel.o\
+rhoCombustionModelNew.o\
+rhoThermoCombustion.o\
+rhoChemistryCombustion.o\
+edcPSRs.o

@@ -49,74 +49,11 @@ namespace Foam
 
     makeChemistryModel
     (
-        chemistryModel,
-        psiChemistryModel,
-        constGasHThermoPhysics
+	chemistryModel,
+	psiChemistryModel,
+	idealGasPhysics
     );
 
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        gasHThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        constIncompressibleGasHThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        incompressibleGasHThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        icoPoly8HThermoPhysics
-    );
-
-    // Chemistry moldels based on sensibleInternalEnergy
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        constGasEThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        gasEThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        constIncompressibleGasEThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        incompressibleGasEThermoPhysics
-    );
-
-    makeChemistryModel
-    (
-        chemistryModel,
-        psiChemistryModel,
-        icoPoly8EThermoPhysics
-    );
 }
 
 // ************************************************************************* //

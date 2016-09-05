@@ -10,20 +10,6 @@ rhoCombustionModel/rhoCombustionModel/rhoCombustionModelNew.C
 rhoCombustionModel/rhoThermoCombustion/rhoThermoCombustion.C
 rhoCombustionModel/rhoChemistryCombustion/rhoChemistryCombustion.C
 
-diffusion/diffusions.C
-infinitelyFastChemistry/infinitelyFastChemistrys.C
-
-PaSR/PaSRs.C
-laminar/laminars.C
-
 edcPSR/edcPSRs.C
-FSD/reactionRateFlameAreaModels/consumptionSpeed/consumptionSpeed.C
-FSD/reactionRateFlameAreaModels/reactionRateFlameArea/reactionRateFlameArea.C
-FSD/reactionRateFlameAreaModels/reactionRateFlameArea/reactionRateFlameAreaNew.C
-FSD/reactionRateFlameAreaModels/relaxation/relaxation.C
-
-FSD/FSDs.C
-
-noCombustion/noCombustions.C
 
 LIB = $(FOAM_USER_LIBBIN)/libusercombustionModels

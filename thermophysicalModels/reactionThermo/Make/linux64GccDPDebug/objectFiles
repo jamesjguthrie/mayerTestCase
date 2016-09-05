@@ -1,0 +1,7 @@
+OBJECTS = \
+$(OBJECTS_DIR)/makeChemistryReaders.o\
+$(OBJECTS_DIR)/basicMultiComponentMixture.o\
+$(OBJECTS_DIR)/psiReactionThermo.o\
+$(OBJECTS_DIR)/psiReactionThermos.o\
+$(OBJECTS_DIR)/rhoReactionThermo.o\
+$(OBJECTS_DIR)/rhoReactionThermos.o

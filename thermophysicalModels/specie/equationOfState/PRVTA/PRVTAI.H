@@ -1,3 +1,28 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2014  OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 /*
     Copyright 2015, James Guthrie, University of Strathclyde
     Volume-translated (Abudour's method) Peng Robinson equation of state for real gas prediction
@@ -201,7 +226,7 @@ inline Foam::scalar Foam::PRVTA<Specie>::n()const
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::volTranslation(const scalar Vut, const scalar T)const
 {
-    scalar dpdv = (
+/*    scalar dpdv = (
               2*this->a(T)*
               (
                   pow(this->b(),3)-pow(this->b(),2)*Vut-this->b()*pow(Vut,2)+pow(Vut,3)
@@ -212,9 +237,11 @@ inline Foam::scalar Foam::PRVTA<Specie>::volTranslation(const scalar Vut, const 
                       +4*this->b()*pow(Vut,3)+pow(Vut,4)
               )
           )
-          /(pow(this->b()-Vut,2)*pow(pow(this->b(),2)-2*this->b()*Vut-pow(Vut,2),2));
+          /(pow(this->b()-Vut,2)*pow(pow(this->b(),2)-2*this->b()*Vut-pow(Vut,2),2));*/
 
-    scalar d = -pow(Vut,2)/(this->R()*Tc_) * dpdv;
+    scalar rho = this->W() / Vut;
+    
+    scalar d = -pow(Vut,2)/(this->R()*Tc_) * this->dpdv(rho,T);
 
     scalar deltaC = ((this->R()*Tc_)/Pc_) * (0.3074 - Zc_);
 
@@ -235,7 +262,7 @@ inline Foam::scalar Foam::PRVTA<Specie>::p(const scalar rho, const scalar T) con
     scalar Vut = this->W()/rho;
     scalar p = this->RR*T/(Vut-b())-a(T)/(pow(Vut,2)+2*b()*Vut-pow(b(),2));
     //Info << "Vut " << Vut << " Vm " << Vm << endl;
-//    Info << "p " << p << endl;
+ //   Info << "p " << p << endl;
     return p;
 }
 
@@ -244,23 +271,34 @@ inline Foam::scalar Foam::PRVTA<Specie>::p(const scalar rho, const scalar T) con
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::dpdv(const scalar rho, const scalar T) const
 {
-    scalar Vm = this->W()/rho;
+ /*   scalar Vm = this->W()/rho;
 
     scalar dpdv = (
-              2*a(T)*
+              2*this->a(T)*
               (
-                  pow(b(),3)-pow(b(),2)*Vm-b()*pow(Vm,2)+pow(Vm,3)
+                  pow(this->b(),3)-pow(this->b(),2)*Vm-this->b()*pow(Vm,2)+pow(Vm,3)
               )
               -this->RR*T*
               (
-                  pow(b(),4)-4*pow(b(),3)*Vm+2*pow(b(),2)*pow(Vm,2)
-                      +4*b()*pow(Vm,3)+pow(Vm,4)
+                  pow(this->b(),4)-4*pow(this->b(),3)*Vm+2*pow(this->b(),2)*pow(Vm,2)
+                      +4*this->b()*pow(Vm,3)+pow(Vm,4)
               )
           )
-          /(pow(b()-Vm,2)*pow(pow(b(),2)-2*b()*Vm-pow(Vm,2),2));
+          /(pow(this->b()-Vm,2)*pow(pow(this->b(),2)-2*this->b()*Vm-pow(Vm,2),2));
 
 //    Info << "dpdv = " << dpdv << endl;
-    return dpdv;
+ //   return dpdv;
+*/
+return -(4*this->a0()*this->n()*Tc_*(this->b()-(this->W()/rho))*(pow(this->b(),2)-pow((this->W()/rho),2))*(this->n()+1)
+*pow((T/Tc_),0.5)
++Tc_*(-2*this->a0()*pow((this->n()+1),2)*(pow(this->b(),3)-pow(this->b(),2)*(this->W()/rho)
+-this->b()*pow((this->W()/rho),2)+pow((this->W()/rho),3))
++this->RR*T*(pow(this->b(),4)-4*pow(this->b(),3)*(this->W()/rho)+2*pow(this->b(),2)*pow((this->W()/rho),2)
++4*this->b()*pow((this->W()/rho),3)+pow((this->W()/rho),4)))
+-2*this->a0()*pow(this->n(),2)*T*(pow(this->b(),3)-pow(this->b(),2)*(this->W()/rho)-this->b()*pow((this->W()/rho),2)+pow((this->W()/rho),3)))
+/(Tc_*pow((this->b()-(this->W()/rho)),2)*pow((pow(this->b(),2)-2*this->b()*(this->W()/rho)-pow((this->W()/rho),2)),2));
+
+
 }
 
 //Real deviative dp/dT at constant molar volume 
@@ -269,7 +307,7 @@ template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::dpdT(const scalar rho, const scalar T) const
 { 
     scalar Vut = this->W()/rho;
-    return this->RR/(Vut-b())-dadT(T)/(pow(Vut,2)+2*b()*Vut-pow(b(),2));
+    return this->RR/(Vut-this->b())-this->dadT(T)/(pow(Vut,2)+2*this->b()*Vut-pow(this->b(),2));
 }
 
 
@@ -288,19 +326,23 @@ template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::dvdp(const scalar rho,const scalar T)  const
 {
     scalar dvdp = 1/this->dpdv(rho, T);
-    Info << "dvdp = " << dvdp << endl;
+    //Info << "dvdp = " << dvdp << endl;
     return dvdp;
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::integral_p_dv(const scalar rho, const scalar T) const
 {
-    scalar Vm = this->W()/rho;
+return  pow(2,0.5)*this->a0()*(2*this->n()*Tc_*(this->n()+1)*pow(T/Tc_,0.5)
+-Tc_*(pow(this->n(),2)+2*this->n()+1)-pow(this->n(),2)*T)*log(this->b()*(1-pow(2,0.5))+(this->W()/rho))/(4*this->b()*Tc_)
++this->RR*T*log((this->W()/rho)-this->b())
+-pow(2,0.5)*this->a0()*(2*this->n()*Tc_*(this->n()+1)*pow(T/Tc_,0.5)
+-Tc_*(pow(this->n(),2)+2*this->n()+1)-pow(this->n(),2)*T)
+*log(this->b()*(pow(2,0.5)+1)+(this->W()/rho))/(4*this->b()*Tc_);
 
-    return -pow(2,0.5)*a(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b())+this->RR*T*log(Vm-this->b())+pow(2,0.5)*a(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b());
 }
 
-template<class Specie>
+/*template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::Cp
 (
     const scalar Rho,
@@ -308,7 +350,7 @@ inline Foam::scalar Foam::PRVTA<Specie>::Cp
 ) const
 {
     return CpCoeffs_.value(T)/this->W();
-}
+}*/
 
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::rho
@@ -426,35 +468,39 @@ inline Foam::scalar Foam::PRVTA<Specie>::rho
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::rho(const scalar p, const scalar T) const
 {
-    scalar Vut = this->W()/(p/(ZSave*this->R()*T));
+    scalar Z = this->Z(p,T);
+    //return p / (Z * this->R() * T);
+    scalar Vut = this->W()/(p/(Z*this->R()*T));
 
     scalar Vt = this->volTranslation(Vut, T) + Vut; 
 
     scalar rhoStart = this->W() / Vt;
-    
+
     return this->rho(p, T, rhoStart);
 
-/*    scalar Vut = this->W() / rhoStart;
-    scalar Vt = this->volTranslation(Vut, T) + Vut;
-    rhoStart = this->W() / Vt;*/
-
-//    Info << "rhoStart: " << rhoStart << endl;
+//    return p/(this->Z(p,T) * this->R() * T);
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::integral_d2pdT2_dv(const scalar rho,const scalar T) const
 {
-    scalar Vm = this->W()/rho;
-
-    return pow(2,0.5)*d2adT2(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b())-pow(2,0.5)*d2adT2(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b());
+return pow(2,0.5)*this->a0()*this->n()*(this->n()+1)*pow(T/Tc_,0.5)
+*log(this->b()*(pow(2,0.5)+1)+(this->W()/rho))/(8*this->b()*pow(T,2))
+-pow(2,0.5)*this->a0()*this->n()*(this->n()+1)*pow(T/Tc_,0.5)
+*log(this->b()*(1-pow(2,0.5))+(this->W()/rho))/(8*this->b()*pow(T,2));
 }
 
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::integral_dpdT_dv(const scalar rho, const scalar T) const
 {
-    scalar Vm = this->W()/rho;
+return (pow(2,0.5)*this->a0()*this->n()*(this->n()+1)*pow(T/Tc_,0.5)/(4*this->b()*T)
+-pow(2,0.5)*this->a0()*pow(this->n(),2)/(4*this->b()*Tc_))
+*log(this->b()*(1-pow(2,0.5))+(this->W()/rho))
++this->RR*log((this->W()/rho)-this->b())
++(pow(2,0.5)*this->a0()*pow(this->n(),2)/(4*this->b()*Tc_)
+-pow(2,0.5)*this->a0()*this->n()*(this->n()+1)*pow(T/Tc_,0.5)/(4*this->b()*T))
+*log(this->b()*(pow(2,0.5)+1)+(this->W()/rho));
 
-    return -pow(2,0.5)*dadT(T)*log(this->b()*(1-pow(2,0.5))+Vm)/(4*this->b())+this->RR*log(Vm-this->b())+pow(2,0.5)*dadT(T)*log(this->b()*(pow(2,0.5)+1)+Vm)/(4*this->b());
 }
 
 template<class Specie>
@@ -474,7 +520,7 @@ inline Foam::scalar Foam::PRVTA<Specie>::isothermalCompressiblity(const scalar r
 template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::cv0(const scalar T) const
 {
-    scalar cp = CpCoeffs_.value(T); // /this->W();
+    scalar cp = CpCoeffs_.value(T);
     return cp - this->RR;    
 }
 
@@ -490,19 +536,30 @@ template<class Specie>
 inline Foam::scalar Foam::PRVTA<Specie>::CpCalc(const scalar rho, const scalar T) const
 {
  //   scalar Vt = this->W()/rho;
+
     //scalar Cv = CvCalc(rho, T);
-    scalar cpnonlimited = this->CvCalc(rho,T) - (T * sqr(dpdT(rho, T))) / min(dpdv(rho, T),-1);
-  //  Info << "Cp: " << Cp << ", Cv: " << Cv << ", T: "<< T << endl;
-return  
-    min
-    (
-        cpnonlimited*20,
-        fabs
+scalar cpnonlimited = fabs(this->CvCalc(this->rhostd(),this->Tstd) - this->Tstd * sqr(this->dpdT(this->rhostd(), this->Tstd)) / min(this->dpdv(this->rhostd(), this->Tstd),-1));
+  //  Info << "cv:  " << this->CvCalc(this->rhostd(),this->Tstd) << ", dpdT: " << this->dpdT(this->rhostd(), this->Tstd) << endl;
+
+scalar cpcoeff = cpnonlimited*20; //CpCoeffs_.value(T)*20;
+scalar cpcalculated =         std::abs
         (
             this->CvCalc(rho,T)
             -T*pow((this->dpdT(rho, T)),2)
                 /min(this->dpdv(rho, T),-1)
-        )
+        );
+
+if (T > 1000.0) 
+{
+    //Info << cpcoeff << " " << cpcalculated << endl;
+    //Info << T << " " << rho << endl;
+}
+
+return  
+    min
+    (
+        cpcoeff,
+        cpcalculated
     );
 }
 
@@ -514,14 +571,21 @@ inline Foam::scalar Foam::PRVTA<Specie>::psi
     const scalar T
 ) const
 {
-    ZSave = Z(p, T);
-    scalar rho = this->rho(p,T);
+    scalar Z = this->Z(p, T);
 
-    scalar beta=this->isobarExpCoef(rho, T);
-    scalar cp = this->CpCalc(rho,T);
-
-    if (psiSwitch_=="psiE")
+    scalar rho = p/(Z * this->R() * T);
+    if (psiSwitch_=="psi")
     {
+        return -this->dvdp(rho,T)*pow(rho,2)/this->W();
+ //   return 1.0/(Z*this->R()*T);
+
+    }
+
+    else if (psiSwitch_=="psiE")
+    {
+        scalar beta=this->isobarExpCoef(rho, T);
+        scalar cp = this->CpCalc(rho,T);
+
     return  
     -(
         (
@@ -538,6 +602,9 @@ inline Foam::scalar Foam::PRVTA<Specie>::psi
 
     else if (psiSwitch_=="psiH")
     {
+        scalar beta=this->isobarExpCoef(rho, T);
+        scalar cp = this->CpCalc(rho,T);
+
     	return  
     	-(
             (T*beta*beta-beta)/cp
@@ -631,10 +698,11 @@ inline Foam::scalar Foam::PRVTA<Specie>::cpMcv
     scalar T
 ) const
 {
-    ZSave = this->Z(p,T);
-  //  scalar rho = p/(ZSave*this->R()*T);
-    //return this->RR * ZSave;
-    return this->CpCalc(rho,T) - this->CvCalc(rho,T);
+    scalar Z = this->Z(p,T);
+    //scalar rho = p/(Z * this->R() * T);
+    //scalar rho = this->rho(p,T);
+    return this->RR * Z;
+ //   return this->CpCalc(rho,T) - this->CvCalc(rho,T);
 }
 
 
@@ -655,7 +723,7 @@ inline void Foam::PRVTA<Specie>::operator+=
     Tc_ = molr1*Tc_ + molr2*pg.Tc_;
     Vc_ = molr1*Vc_ + molr2*pg.Vc_;
     Zc_ = molr1*Zc_ + molr2*pg.Zc_;
-    Pc_ = specie::RR*Zc_*Tc_/Vc_;
+    Pc_ = molr1*Pc_ + molr2*pg.Pc_; //Pc_ = specie::RR*Zc_*Tc_/Vc_;
     rhoC_ = molr1*rhoC_ + molr2*pg.rhoC_;
     omega_ = molr1*omega_ + molr2*pg.omega_;
     rho_ = molr1*rho_ + molr2*pg.rho_;
@@ -678,7 +746,7 @@ inline void Foam::PRVTA<Specie>::operator-=
     Tc_ = molr1*Tc_ - molr2*pg.Tc_;
     Vc_ = molr1*Vc_ - molr2*pg.Vc_;
     Zc_ = molr1*Zc_ - molr2*pg.Zc_;
-    Pc_ = specie::RR*Zc_*Tc_/Vc_;
+    Pc_ = molr1*Pc_ - molr2*pg.Pc_; //Pc_ = specie::RR*Zc_*Tc_/Vc_;
     rhoC_ = molr1*rhoC_ - molr2*pg.rhoC_;
     omega_ = molr1*omega_ - molr2*pg.omega_;
     rho_ = molr1*rho_ - molr2*pg.rho_;
@@ -709,6 +777,7 @@ Foam::PRVTA<Specie> Foam::operator+
     const scalar Tc = molr1*pg1.Tc_ + molr2*pg2.Tc_;
     const scalar Vc = molr1*pg1.Vc_ + molr2*pg2.Vc_;
     const scalar Zc = molr1*pg1.Zc_ + molr2*pg2.Zc_;
+    const scalar Pc = molr1*pg1.Pc_ + molr2*pg2.Pc_;
     const scalar rhoC = molr1*pg1.rhoC_ + molr2*pg2.rhoC_;
 
     return PRVTA<Specie>
@@ -718,7 +787,7 @@ Foam::PRVTA<Specie> Foam::operator+
         Tc,
         Vc,
         Zc,
-        specie::RR*Zc*Tc/Vc,
+        Pc, //specie::RR*Zc*Tc/Vc,
 	rhoC,
         molr1*pg1.omega_ + molr2*pg2.omega_,
 	molr1*pg1.rho_ + molr2*pg2.rho_
@@ -741,6 +810,7 @@ Foam::PRVTA<Specie> Foam::operator-
     const scalar Vc = molr1*pg1.Vc_ + molr2*pg2.Vc_;
     const scalar Zc = molr1*pg1.Zc_ + molr2*pg2.Zc_;
     const scalar rhoC = molr1*pg1.rhoC_ + molr2*pg2.rhoC_;
+    const scalar Pc = molr1*pg1.Pc_ + molr2*pg2.Pc_;
 
     return PRVTA<Specie>
     (
@@ -749,7 +819,7 @@ Foam::PRVTA<Specie> Foam::operator-
         Tc,
         Vc,
         Zc,
-        specie::RR*Zc*Tc/Vc,
+        Pc, //specie::RR*Zc*Tc/Vc,
 	rhoC,
         molr1*pg1.omega_ - molr2*pg2.omega_,
 	molr1*pg1.rho_ - molr2*pg2.rho_

@@ -1,3 +1,28 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 /*
     Copyright 2015, James Guthrie, University of Strathclyde
     Calculate cp, cv, etc. directly    
@@ -13,7 +38,6 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize>::CpFromEoSThermo
     const EquationOfState& pt,
     const scalar Hf,
     const scalar Sf,
-    const scalar CpEoS,
     const Polynomial<PolySize>& CpCoeffs,
     const typename Polynomial<PolySize>::intPolyType& hCoeffs,
     const Polynomial<PolySize>& sCoeffs
@@ -22,7 +46,6 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize>::CpFromEoSThermo
     EquationOfState(pt),
     Hf_(Hf),
     Sf_(Sf),
-    CpEoS_(CpEoS),
     CpCoeffs_(CpCoeffs),
     hCoeffs_(hCoeffs),
     sCoeffs_(sCoeffs)
@@ -41,7 +64,6 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize>::CpFromEoSThermo
     EquationOfState(pt),
     Hf_(pt.Hf_),
     Sf_(pt.Sf_),
-    CpEoS_(pt.CpEoS_),
     CpCoeffs_(pt.CpCoeffs_),
     hCoeffs_(pt.hCoeffs_),
     sCoeffs_(pt.sCoeffs_)
@@ -58,7 +80,6 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize>::CpFromEoSThermo
     EquationOfState(name, pt),
     Hf_(pt.Hf_),
     Sf_(pt.Sf_),
-    CpEoS_(pt.CpEoS_),
     CpCoeffs_(pt.CpCoeffs_),
     hCoeffs_(pt.hCoeffs_),
     sCoeffs_(pt.sCoeffs_)
@@ -92,29 +113,21 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::cp
     const scalar p, const scalar T
 ) const
 {
-    scalar Z = this->Z(p,T);
-    
-    scalar rhoCalc = p/(Z * this->R() * T);
-
-    //scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
-
-    //rhoCalc = this->W() / Vt;
-    
-    //rhoCalc = this->rho(p,T,rhoCalc);
-
-    scalar CpReal = this->CpCalc(rhoCalc,T);
-
-    return CpReal;
-
 //    return CpCoeffs_.value(T);
+
+    scalar rho = p/(this->Z(p,T) * this->R() * T);
+
+    return this->CpCalc(rho,T);
 }
 
 template<class EquationOfState, int PolySize>
 inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::cv
 (
-    const scalar rho, const scalar T
+    const scalar p, const scalar T
 ) const
 {
+    scalar rho = p/(this->Z(p,T) * this->R() * T);
+ //   return CpCoeffs_.value(T) - this->RR;
     return this->CvCalc(rho,T);
 }
 
@@ -138,18 +151,11 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::ha
     const scalar p, const scalar T
 ) const
 {
-    scalar Z = this->Z(p,T);
-    scalar rhoCalc = p/(this->R() * T);
+ //   scalar rhoCalc = p/(this->Z(p,T)* this->R() * T);
 
- /*   scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
+   // return this->e(rhoCalc,T)+p/rhoCalc*this->W()-this->Pstd/this->rhostd()*this->W();
 
-    rhoCalc = this->W() / Vt;
-
-    rhoCalc = this->rho(p,T,rhoCalc);
-   */ 
-    return this->e(rhoCalc,T)+p/rhoCalc*this->W()-this->Pstd/this->rhostd()*this->W();
-
-//    return hCoeffs_.value(T);
+   return hCoeffs_.value(T);
 }
 
 
@@ -178,22 +184,14 @@ inline Foam::scalar Foam::CpFromEoSThermo<EquationOfState, PolySize>::s
     const scalar T
 ) const
 {
-    scalar Z = this->Z(p,T);
+ /*   scalar rhoCalc = p/(this->Z(p,T) * this->R() * T);
 
-    scalar rhoCalc = p/(this->R() * T);
-
- /*   scalar Vt = this->volTranslation(rhoCalc, T) + (this->W() / rhoCalc);
-
-    rhoCalc = this->W() / Vt;
-
-    rhoCalc = this->rho(p,T,rhoCalc);
-*/
     return -(this->integral_dpdT_dv(this->rhostd(),this->Tstd))
     +(this->sCoeffs_.value(T)-sCoeffs_.value(this->Tstd))
     -this->RR*log(T/this->Tstd)
     + this->integral_dpdT_dv(rhoCalc,T);
-
-  //  return sCoeffs_.value(T);
+*/
+   return sCoeffs_.value(T);
 }
 
 
@@ -213,7 +211,6 @@ Foam::CpFromEoSThermo<EquationOfState, PolySize>::operator=
     CpCoeffs_ = pt.CpCoeffs_;
     hCoeffs_ = pt.hCoeffs_;
     sCoeffs_ = pt.sCoeffs_;
-    CpEoS_ = pt.CpEoS_;
     return *this;
 }
 
@@ -236,7 +233,6 @@ inline void Foam::CpFromEoSThermo<EquationOfState, PolySize>::operator+=
     CpCoeffs_ = molr1*CpCoeffs_ + molr2*pt.CpCoeffs_;
     hCoeffs_ = molr1*hCoeffs_ + molr2*pt.hCoeffs_;
     sCoeffs_ = molr1*sCoeffs_ + molr2*pt.sCoeffs_;
-    CpEoS_ = molr1*CpEoS_ + molr2*pt.CpEoS_;
 
 }
 
@@ -259,7 +255,6 @@ inline void Foam::CpFromEoSThermo<EquationOfState, PolySize>::operator-=
     CpCoeffs_ = molr1*CpCoeffs_ - molr2*pt.CpCoeffs_;
     hCoeffs_ = molr1*hCoeffs_ - molr2*pt.hCoeffs_;
     sCoeffs_ = molr1*sCoeffs_ - molr2*pt.sCoeffs_;
-    CpEoS_ = molr1*CpEoS_ - molr2*pt.CpEoS_;
 }
 
 
@@ -294,8 +289,7 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize> Foam::operator+
         molr1*pt1.Sf_ + molr2*pt2.Sf_,
         molr1*pt1.CpCoeffs_ + molr2*pt2.CpCoeffs_,
         molr1*pt1.hCoeffs_ + molr2*pt2.hCoeffs_,
-        molr1*pt1.sCoeffs_ + molr2*pt2.sCoeffs_,
-	molr1*pt1.CpEoS_ + molr2*pt2.CpEoS_
+        molr1*pt1.sCoeffs_ + molr2*pt2.sCoeffs_
     );
 }
 
@@ -320,8 +314,7 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize> Foam::operator-
         molr1*pt1.Sf_ - molr2*pt2.Sf_,
         molr1*pt1.CpCoeffs_ - molr2*pt2.CpCoeffs_,
         molr1*pt1.hCoeffs_ - molr2*pt2.hCoeffs_,
-        molr1*pt1.sCoeffs_ - molr2*pt2.sCoeffs_,
-	molr1*pt1.CpEoS_ - molr2*pt2.CpEoS_
+        molr1*pt1.sCoeffs_ - molr2*pt2.sCoeffs_
     );
 }
 
@@ -338,7 +331,6 @@ inline Foam::CpFromEoSThermo<EquationOfState, PolySize> Foam::operator*
         s*static_cast<const EquationOfState&>(pt),
         pt.Hf_,
         pt.Sf_,
-	pt.CpEoS_,
         pt.CpCoeffs_,
         pt.hCoeffs_,
         pt.sCoeffs_

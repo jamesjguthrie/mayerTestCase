@@ -1,0 +1,18 @@
+DEPENDENCIES = \
+chemistryModel/basicChemistryModel/basicChemistryModel.dep\
+chemistryModel/psiChemistryModel/psiChemistryModel.dep\
+chemistryModel/psiChemistryModel/psiChemistryModels.dep\
+chemistryModel/rhoChemistryModel/rhoChemistryModel.dep\
+chemistryModel/rhoChemistryModel/rhoChemistryModels.dep\
+chemistryModel/binaryTree/binaryNode.dep\
+chemistryModel/binaryTree/binaryTreeAdd.dep\
+chemistryModel/binaryTree/binaryTree.dep\
+chemistryModel/binaryTree/binaryTreeClean.dep\
+chemistryModel/binaryTree/binaryTreeInsert.dep\
+chemistryModel/binaryTree/binaryTreeScan.dep\
+chemistryModel/binaryTree/binaryTreeSearch.dep\
+chemistryModel/binaryTree/chemPoint.dep\
+chemistryModel/RADAU5/RADAU5s.dep\
+chemistryModel/RADAU5/RADAU5.dep\
+chemistryModel/RADAU5/decsol.dep\
+chemistrySolver/chemistrySolver/makeChemistrySolvers.dep

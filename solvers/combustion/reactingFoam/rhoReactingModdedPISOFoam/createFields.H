@@ -67,6 +67,19 @@ volScalarField kappa
     thermo.kappa()
 );
 
+volScalarField mu
+(
+    IOobject
+    (
+	"thermo:mu",
+	runTime.timeName(),
+	mesh,
+	IOobject::NO_READ,
+	IOobject::AUTO_WRITE
+    ),
+    thermo.mu()
+);
+
 Cv.write();
 
 Info<< "Reading field U\n" << endl;

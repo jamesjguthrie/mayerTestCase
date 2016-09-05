@@ -102,6 +102,7 @@ inline Foam::scalar Foam::janafThermo<EquationOfState>::limit
 {
     if (T < Tlow_ || T > Thigh_)
     {
+	/*
         WarningIn
         (
             "janafThermo<EquationOfState>::limit(const scalar T) const"
@@ -109,6 +110,7 @@ inline Foam::scalar Foam::janafThermo<EquationOfState>::limit
                " out of temperature range "
             << Tlow_ << " -> " << Thigh_ << ";  T = " << T
             << endl;
+	*/
 
         return min(max(T, Tlow_), Thigh_);
     }
@@ -166,6 +168,18 @@ inline Foam::scalar Foam::janafThermo<EquationOfState>::cp
     const coeffArray& a = coeffs(T);
     return this->RR*((((a[4]*T + a[3])*T + a[2])*T + a[1])*T + a[0]);
 }
+
+template<class EquationOfState>
+inline Foam::scalar Foam::janafThermo<EquationOfState>::cv
+(
+    const scalar p,
+    const scalar T
+) const
+{
+    const coeffArray& a = coeffs(T);
+    return (this->RR*((((a[4]*T + a[3])*T + a[2])*T + a[1])*T + a[0])) - this->RR;
+}
+
 
 
 template<class EquationOfState>

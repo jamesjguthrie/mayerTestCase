@@ -39,10 +39,19 @@ SourceFiles
 #define chemistryModel_H
 
 #include "Reaction.H"
-#include "ODESystem.H"
+#include "ODE.H"
 #include "volFieldsFwd.H"
 #include "simpleMatrix.H"
 #include "DimensionedField.H"
+
+#include "binaryTree.H"
+#include "RADAU5s.h"
+#include "bound.H"
+
+#include <string>
+#include <vector>
+#include <map>
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,7 +69,8 @@ template<class CompType, class ThermoType>
 class chemistryModel
 :
     public CompType,
-    public ODESystem
+    public ODE,
+    public RADAU5s
 {
     // Private Member Functions
 
@@ -101,30 +111,152 @@ protected:
         PtrList<DimensionedField<scalar, volMesh> > RR_;
 
 
-    // Protected Member Functions
+       // Protected Member Functions
 
         //- Write access to chemical source terms
         //  (e.g. for multi-chemistry model)
         inline PtrList<DimensionedField<scalar, volMesh> >& RR();
 
+private:
+
+        /*****************************************************************************************/
+        /* EDC data                                                                              */
+
+
+        //- List of reaction rate per specie [kg/m3/s]
+        PtrList<scalarField> _EDC_RR_;
+
+        // fine structure mass fractions
+        //PtrList<volScalarField>& _EDC_vfYStar_;
+        //PtrList<DimensionedField<scalar, volMesh> > _EDC_vfYStar_;
+        PtrList<scalarField>     _EDC_sfYStar_;
+
+
+        struct _EDC_element_
+        {
+            char symbol;
+            bool flag;
+            std::string index;
+            int count;
+        };
+
+
+
+        // EDC type: RANS or LES
+        scalar _EDCtype_;
+
+        // EDC model constants
+        scalar _EDC_CD1_;
+        scalar _EDC_CD2_;
+        scalar _EDC_CD3_;
+
+        scalar _EDC_gammaStarClipFactor_;
+
+
+        // binary Tree parameters
+        // use binary tree?
+        bool _EDC_useBinaryTree_;
+
+        // binary tree to store results of YStar integrations
+        binaryTree* _EDC_resultTable_;
+
+        // max number of table entries
+        label _EDC_tableSize_;
+
+        // allowable error for binary tree lookups
+        scalar _EDC_tableErr_;
+
+        // reactor model :
+        // 0 - baseline (open) for RAS
+        // 1 - closed for LES (not used)
+        //scalar _EDC_reactorType_;
+
+        //temperature limits
+        scalar _EDC_TMin_;
+        scalar _EDC_TMax_;
+
+        //normalization values for resultTable
+        scalar _EDC_hsMax_;
+        scalar _EDC_gammaStarMax_;
+        scalar _EDC_mDotStarMax_;
+
+        // under-relaxation factor for fine structure mass fractions
+        scalar _EDC_relaxFineStructures_;
+
+        // parameters for RADAU5 solver
+        scalar _EDC_absoluteTolerance_;
+        scalar _EDC_relativeTolerance_;
+        scalar _EDC_maxIterations_;
+
+        // pointer to RADAU5 solution vector
+        double* _EDC_solverX_;
+
+        // mass transfer rate to and from fine structures
+        scalarField _EDC_mDotStar_;
+
+        // mass fraction of fine structures in control volume
+        scalarField _EDC_gammaStar_;
+
+        // time scale
+        scalarField _EDC_tau_;
+
+        // EDC Factor
+        scalarField _EDC_edcFactor_;
+
+        // Turbulent Reynolds number only for URANS calculations !!!
+        scalarField _EDC_ReTau_;
+
+
+        // Update 12 September 2014
+        // Utility to calculate a mixture fraction
+        std::vector< std::map<char,unsigned int> > _EDC_specieAtomsTable_;
+        scalar _EDC_mixtureWT_;
+        void EDC_constructSpecieAtomsTable();
+
+        // member functions
+
+        void EDC_RAS_solve();
+        //void EDC_SAS_solve();
+        void EDC_LES_solve();
+        void EDC_updateYStar();
+        void EDC_iterateTAndRho(scalar& TResult, scalar& rho, scalar h, scalar p, scalarField& Y, scalar TInit) const;
+        void EDC_iterateTAndRho(scalar& TResult, scalar& rho, scalar h, scalar p, scalarField& Y, scalar TInit,  scalar& mixtureCp, scalar& mixtureRR, scalar& mixtureHs) const;
+        void EDC_derivative(scalarField&  YStarCell, scalarField& dYdtCell) const;
+        void EDC_writeScalarField(scalarField X, word fieldName);
+        void EDC_writeVolScalarField(volScalarField X, word fieldName);
+
+        // additional output of scalarFields from EDC
+        void EDC_writeCombustionTerms();
+        void EDC_calcMixtureFraction();
 
 public:
 
-    //- Runtime type information
-    TypeName("chemistryModel");
+        void RADAU5derivative(double x, double *y, double *f) const;
+        void RADAU5jacobian(double x, double *y, double **J) const;
+        void RADAU5mass(double **M) const;
 
 
-    // Constructors
+        /* end of EDC data                                                                              */
+        /*****************************************************************************************/
+
+
+public:
+
+        //- Runtime type information
+        TypeName("chemistryModel");
+
+
+        // Constructors
 
         //- Construct from mesh
         chemistryModel(const fvMesh& mesh);
 
 
-    //- Destructor
-    virtual ~chemistryModel();
+        //- Destructor
+        virtual ~chemistryModel();
 
 
-    // Member Functions
+        // Member Functions
 
         //- The reactions
         inline const PtrList<Reaction<ThermoType> >& reactions() const;
@@ -186,6 +318,7 @@ public:
         // Chemistry model functions (overriding abstract functions in
         // basicChemistryModel.H)
 
+
             //- Return const access to the chemical source terms for specie, i
             inline const DimensionedField<scalar, volMesh>& RR
             (
@@ -198,13 +331,13 @@ public:
                 const label i
             );
 
-            //- Solve the reaction system for the given time step
-            //  and return the characteristic time
-            virtual scalar solve(const scalar deltaT);
+            //- Return reaction rate of the specieI in reactionI
+            virtual tmp<DimensionedField<scalar, volMesh> > calculateRR
+            (
+                const label reactionI,
+                const label specieI
+            ) const;
 
-            //- Solve the reaction system for the given time step
-            //  and return the characteristic time
-            virtual scalar solve(const scalarField& deltaT);
 
             //- Return the chemical time scale
             virtual tmp<volScalarField> tc() const;
@@ -216,7 +349,7 @@ public:
             virtual tmp<volScalarField> dQ() const;
 
 
-        // ODE functions (overriding abstract functions in ODE.H)
+            // ODE functions (overriding abstract functions in ODE.H)
 
             //- Number of ODE's to solve
             virtual label nEqns() const;
@@ -235,15 +368,53 @@ public:
                 scalarField& dcdt,
                 scalarSquareMatrix& dfdc
             ) const;
+		
+	    /**********************************************************************************/
+   	    // we do not all these ...
+	    /**********************************************************************************/
 
-            virtual void solve
+	    //- Solve the reaction system for the given start time and time
+            //  step and return the characteristic time
+            virtual scalar solve(const scalar t0, const scalar deltaT);
+
+	    virtual scalar solve
             (
                 scalarField &c,
-                scalar& T,
-                scalar& p,
-                scalar& deltaT,
-                scalar& subDeltaT
-            ) const;
+                const scalar T,
+                const scalar p,
+                const scalar t0,
+                const scalar dt
+            ) const;	
+
+
+           //- Update concentrations in reaction i given dt and reaction rate omega
+           // used by sequential solver
+           void updateConcsInReactionI
+           (
+            const label i,
+            const scalar dt,
+            const scalar omega,
+            const scalar p,
+            const scalar T,
+            scalarField& c
+           ) const;
+
+           //- Update matrix RR for reaction i. Used by EulerImplicit
+           void updateRRInReactionI
+        (
+            const label i,
+            const scalar pr,
+            const scalar pf,
+            const scalar corr,
+            const label lRef,
+            const label rRef,
+            const scalar p,
+            const scalar T,
+            simpleMatrix<scalar>& RR
+        ) const;
+
+
+
 };
 
 

@@ -33,21 +33,19 @@ Description
 #define thermoPhysicsTypes_H
 
 #include "specie.H"
-#include "perfectGas.H"
-#include "incompressiblePerfectGas.H"
 #include "PRVTA.H"
-#include "hConstThermo.H"
+#include "PengRobinsonGas.H"
+#include "perfectGas.H"
+#include "hPolynomialThermo.H"
 #include "janafThermo.H"
+#include "janafRealThermo.H"
 #include "CpFromEoSThermo.H"
 #include "sensibleEnthalpy.H"
 #include "sensibleInternalEnergy.H"
 #include "thermo.H"
-#include "sutherlandTransport.H"
-#include "constTransport.H"
 #include "chungTransport.H"
-#include "icoPolynomial.H"
-#include "hPolynomialThermo.H"
-#include "polynomialTransport.H"
+#include "sutherlandTransport.H"
+#include "sutherlandRealTransport.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,11 +53,11 @@ namespace Foam
 {
     // thermo physics types based on sensibleEnthalpy
     typedef
-    chungTransport
+    sutherlandRealTransport //chungTransport
     <
 	species::thermo
 	<
-	    CpFromEoSThermo
+	    janafRealThermo
 	    <
 		PRVTA<specie>
 	    >,
@@ -68,140 +66,18 @@ namespace Foam
     > PRVTAPhysics;
 
     typedef
-    constTransport
-    <
-        species::thermo
-        <
-            hConstThermo
-            <
-                perfectGas<specie>
-            >,
-            sensibleEnthalpy
-        >
-    > constGasHThermoPhysics;
-
-    typedef
     sutherlandTransport
     <
-        species::thermo
-        <
-            janafThermo
-            <
-                perfectGas<specie>
-            >,
-            sensibleEnthalpy
-        >
-    > gasHThermoPhysics;
+	species::thermo
+	<
+	    janafThermo
+	    <
+		PRVTA<specie> //perfectGas<specie>
+	    >,
+	    sensibleEnthalpy
+	>
+    > idealGasPhysics;
 
-    typedef
-    constTransport
-    <
-        species::thermo
-        <
-            hConstThermo
-            <
-                incompressiblePerfectGas<specie>
-            >,
-            sensibleEnthalpy
-        >
-    > constIncompressibleGasHThermoPhysics;
-
-    typedef
-    sutherlandTransport
-    <
-        species::thermo
-        <
-            janafThermo
-            <
-                incompressiblePerfectGas<specie>
-            >,
-            sensibleEnthalpy
-        >
-    > incompressibleGasHThermoPhysics;
-
-    typedef
-    polynomialTransport
-    <
-        species::thermo
-        <
-            hPolynomialThermo
-            <
-                icoPolynomial<specie, 8>,
-                8
-            >,
-            sensibleEnthalpy
-        >,
-        8
-    > icoPoly8HThermoPhysics;
-
-
-    // thermo physics types based on sensibleInternalEnergy
-    typedef
-    constTransport
-    <
-        species::thermo
-        <
-            hConstThermo
-            <
-                perfectGas<specie>
-            >,
-            sensibleInternalEnergy
-        >
-    > constGasEThermoPhysics;
-
-    typedef
-    sutherlandTransport
-    <
-        species::thermo
-        <
-            janafThermo
-            <
-                perfectGas<specie>
-            >,
-            sensibleInternalEnergy
-        >
-    > gasEThermoPhysics;
-
-    typedef
-    constTransport
-    <
-        species::thermo
-        <
-            hConstThermo
-            <
-                incompressiblePerfectGas<specie>
-            >,
-            sensibleInternalEnergy
-        >
-    > constIncompressibleGasEThermoPhysics;
-
-    typedef
-    sutherlandTransport
-    <
-        species::thermo
-        <
-            janafThermo
-            <
-                incompressiblePerfectGas<specie>
-            >,
-            sensibleInternalEnergy
-        >
-    > incompressibleGasEThermoPhysics;
-
-    typedef
-    polynomialTransport
-    <
-        species::thermo
-        <
-            hPolynomialThermo
-            <
-                icoPolynomial<specie, 8>,
-                8
-            >,
-            sensibleInternalEnergy
-        >,
-        8
-    > icoPoly8EThermoPhysics;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -1,0 +1,4 @@
+LOCAL_OBJECTS = \
+atomicWeights.o\
+specie.o\
+makeReactions.o

@@ -1,0 +1,18 @@
+LOCAL_OBJECTS = \
+basicChemistryModel.o\
+psiChemistryModel.o\
+psiChemistryModels.o\
+rhoChemistryModel.o\
+rhoChemistryModels.o\
+binaryNode.o\
+binaryTreeAdd.o\
+binaryTree.o\
+binaryTreeClean.o\
+binaryTreeInsert.o\
+binaryTreeScan.o\
+binaryTreeSearch.o\
+chemPoint.o\
+RADAU5s.o\
+RADAU5.o\
+decsol.o\
+makeChemistrySolvers.o

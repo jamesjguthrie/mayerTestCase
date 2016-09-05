@@ -35,9 +35,6 @@ Description
 #include "thermoPhysicsTypes.H"
 #include "Reaction.H"
 
-#include "icoPolynomial.H"
-#include "hPolynomialThermo.H"
-#include "polynomialTransport.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,33 +42,8 @@ namespace Foam
 {
     // sensible enthalpy based reactions
     typedef Reaction<PRVTAPhysics> PRVTAReaction;
-
-    typedef Reaction<constGasHThermoPhysics> constGasHReaction;
-
-    typedef Reaction<gasHThermoPhysics> gasHReaction;
-
-    typedef Reaction<constIncompressibleGasHThermoPhysics>
-        constIncompressibleGasHReaction;
-
-    typedef Reaction<incompressibleGasHThermoPhysics>
-        incompressibleGasHReaction;
-
-    typedef Reaction<icoPoly8HThermoPhysics> icoPoly8HReaction;
-
-    // internal ennergy based reactions
-    typedef Reaction<constGasEThermoPhysics> constGasEReaction;
-
-    typedef Reaction<gasEThermoPhysics> gasEReaction;
-
-    typedef Reaction<constIncompressibleGasEThermoPhysics>
-        constIncompressibleGasEReaction;
-
-    typedef Reaction<incompressibleGasEThermoPhysics>
-        incompressibleGasEReaction;
-
-    typedef Reaction<icoPoly8EThermoPhysics> icoPoly8EReaction;
+    typedef Reaction<idealGasPhysics> idealGasReaction;
 }
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif
