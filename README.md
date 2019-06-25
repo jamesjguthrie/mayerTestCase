@@ -1,3 +1,5 @@
+This work was the basis of my PhD which I never finished. The code works well and is valid in many real gas scenarios.
+
 mayerTestCase
 =============
 
